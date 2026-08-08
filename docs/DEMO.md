@@ -50,6 +50,17 @@ most likely to be wrong, in the order they will bite:
 3. **Swiping off an answered quiz.** The quiz card is a scroll view inside the
    pager; on the taller Challenge questions, swiping *inside the card* scrolls
    the card rather than advancing the feed. Swipe from the strip above it.
+4. **Karaoke sync.** The narration lights word by word off real ElevenLabs
+   timestamps, sampled at 10Hz. It should track the voice within about a quarter
+   of a word. If it lags or races, the sample interval and the index derivation
+   are both in [BatchPlayerScreen.tsx](../mobile/src/screens/BatchPlayerScreen.tsx).
+5. **Tilt parallax direction and feel.** The smoothing, spans and travel
+   distances are reasoned, not tuned — expect one session of adjustment. If the
+   image pushes the *wrong way* as you tilt, that is a known unknown (the sign of
+   the accelerometer axes in portrait was not verifiable from here): negate the
+   two axis amounts in [LessonSlidePage.tsx](../mobile/src/components/LessonSlidePage.tsx).
+   Hold the phone as you actually will on stage — the pitch baseline adapts over
+   ~4s, so judge it after a few seconds, not instantly.
 
 ## T-20 — one clean live run
 
@@ -69,6 +80,22 @@ sets `playsInSilentMode`, but only after the first tap), or the `http://` clips
 being refused on the device. Not `data:` URIs — on the local path a `Host`
 header is always present, so that tier cannot be reached. See the Audio hosting
 section of the [README](../README.md).
+
+## Replays are cached — but only from the library
+
+A generated batch is cached against the bytes of the worksheet that produced it,
+so re-submitting the **same** file replays in under two seconds instead of ~45,
+with the swarm narration flashing past rather than skipped (it is the pitch, not
+a spinner). This is what makes a stumble recoverable on stage.
+
+The catch: the key is the file's content, so **a fresh camera snap never hits** —
+new photo, new bytes, full run. If you need to show the same worksheet twice, or
+you have to retry after a fumble, use **Choose a photo** or the PDF, not the
+camera. Rehearse that muscle memory.
+
+A hit is only served after the cached media is probed and found alive, so a
+restarted dev server or a changed LAN IP quietly forces a real run instead of
+playing dead links.
 
 ## T-10 — the script (PRD §9)
 

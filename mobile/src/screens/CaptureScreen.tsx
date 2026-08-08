@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.sm,
   },
-  primaryText: { ...type.option, color: colors.text, fontSize: 18 },
+  primaryText: { ...type.option, color: colors.onAccent, fontSize: 18 },
   secondary: {
     borderRadius: radius.pill,
     borderWidth: 1,

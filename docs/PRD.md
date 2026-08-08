@@ -32,14 +32,14 @@ One homework input → one **batch**, experienced as a full-screen vertical feed
 Batch
  ├─ Group ×3–5
  │    ├─ LessonContent ×1     — 1–4 slides (fal.ai Flux 720×1280 portrait
- │    │                          illustration + native caption + ElevenLabs clip)
+ │    │                          illustration + karaoke narration + ElevenLabs clip)
  │    └─ QuizContent  ×1      — one question, overlay card
  └─ ScoreCard                  — score, streak, subject chips, confetti, encouragement
 ```
 
 - **Rhythm:** scroll a group's lesson slides → hit its 1 quiz content → repeat. 3–5 quiz questions per batch; the batch ends when all are answered.
 - **POC budget (Planner-enforced):** ≤12 slides, ≤12 images, ~2 min total narration. The slide budget wins over the per-group count: a batch that overshoots is trimmed from the back, down to a single slide in a group if that is what fits. Demo default: 4 groups = 4 questions ≈ a 2–3 minute experience.
-- **Images:** style-locked ("flat, colorful children's textbook illustration, no text"), 720×1280 — mobile-sharp, cheap, fast; never contain text/labels/diagrams (all words are native overlays).
+- **Images:** style-locked (painterly airbrushed science-textbook illustration — saturated, softly shaded, clean sky-blue ground — no text), 720×1280 — mobile-sharp, cheap, fast; never contain text/labels/diagrams (all words are native overlays).
 - **Question schema** (Quiz Writer picks the fit): `slider` (0–100, tolerance-graded) · `single` (one tap) · `multi` (select + confirm) · `order` (tap-to-order with numbered badges). ≥3 types per batch.
 - Quiz pages pause narration and lock scrolling until answered; instant feedback (confetti burst / shake + one-line explanation).
 
@@ -70,7 +70,7 @@ Score (n/N), streak, subject-matter chips ("Math · Fractions", "Science · Habi
 1. Open Zing → **Snap homework** (camera) or **Upload PDF**
 2. Pick difficulty (default On-level)
 3. Generating screen: swarm status narration (batch starts < 45s)
-4. Swipe the batch: lessons play (Ken Burns + narration, auto-advance), quiz pages interrupt and lock until answered
+4. Swipe the batch: lessons play (Ken Burns + tilt parallax + narration lit word by word, auto-advance), quiz pages interrupt and lock until answered
 5. All questions answered → **ScoreCard** (confetti, subjects, encouragement) → auto-saved
 6. History: past batches (topic, difficulty, score, date)
 
@@ -78,7 +78,7 @@ Score (n/N), streak, subject-matter chips ("Math · Fractions", "Science · Habi
 
 **F1 Capture** — `expo-image-picker` camera or `expo-document-picker` PDF (Anthropic ingests PDFs natively); on-device image downscale ≤1568px.
 **F2 Batch generation** — extract → research → plan+write (parallel writers) → assets (parallel fal + ElevenLabs). Validated (Zod) before serving; malformed questions dropped, ≥3 valid or fallback.
-**F3 Batch player** — vertical pager; slide pages auto-advance on audio end; quiz overlay cards with 4 native widgets; scroll lock during questions; prefetched images; mute + progress dots.
+**F3 Batch player** — vertical pager; slide pages auto-advance on audio end; quiz overlay cards with 4 native widgets; scroll lock during questions; prefetched images; mute + progress dots. The narration is drawn on the slide and lit **word by word against the audio** (ElevenLabs timestamps; static text when a clip has none), and the image, scrim and text move at different rates with device tilt and page scroll — a 2.5D parallax that keeps the screen alive between beats.
 **F4 ScoreCard** — confetti cannon, score, subject chips, banded encouragement, Make it harder (cached Challenge batch in demo).
 **F5 Recording** — AsyncStorage `{batchId, topicSummary, difficulty, score, total, perQuestion, timestamp}` + history screen.
 **F6 Status narration** — Generating screen narrates the four real stages, one line each: "Reading the worksheet… Researchers are digging… Lesson writers drafting… Illustrating and recording narration…"

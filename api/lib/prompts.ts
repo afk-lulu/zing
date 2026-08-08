@@ -209,6 +209,8 @@ batch with it.
 
 The image-prompt rule is absolute: describe a scene, a character, or a visual metaphor and nothing else. No text, no labels, no numbers, no letters, no diagrams, no charts, no arrows, no equations, no signs, no writing of any kind. Image models render words as garbage, and every word the child reads is drawn by the app on top of your picture. "A pizza cut into eight equal slices, two slices missing, on a checkered tablecloth" is right. "A pizza labelled 2/8" is not.
 
+Do not name an object whose whole purpose is to carry numbers — no rulers, tape measures, number lines, clocks, thermometers, measuring jugs, scales, calendars or calculators. Asking for one is asking for tick marks and digits, and the model will draw them however firmly you forbid text. If the idea needs measuring, show the thing being measured instead: not "a ruler beside a pencil", but "a pencil lying next to a row of identical acorns".
+
 Return this JSON:
 { "slides": [ { "narration": "...", "caption": "...", "imagePrompt": "..." } ] }
 

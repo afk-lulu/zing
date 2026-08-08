@@ -79,6 +79,58 @@ nowhere; it is now a bundled 400ms WAV on its own player, muted with the batch.
 
 ---
 
+## Added after the conformance pass — more movement on screen
+
+**Karaoke narration.** The slide now draws `narration` — the words being spoken
+— instead of the short written `caption`, and lights each word as the voice
+reaches it. Timings are real: ElevenLabs' `with-timestamps` endpoint returns a
+character-level alignment that S4 folds into `narrationWords` (ARCH §3). We read
+`alignment`, not `normalized_alignment`, because the latter is what the model
+*spoke* (it rewrites em dashes, collapses spaces) while the karaoke highlights
+what is *on screen*. A clip with no timings renders statically rather than
+guessing — a highlight drifting out of sync reads as broken; static text does
+not. Every word is the same size and weight and differs only in colour, so
+lighting one cannot change a glyph's advance width and the text can never
+reflow. Sampling is 10Hz and the derived word index is pushed only when it
+changes, so ~40 renders per clip, in one component.
+
+**2.5D parallax.** Image, gradient plate and text sit on separate layers moving
+at different rates against device tilt (`expo-sensors`, low-pass filtered,
+clamped) and against pager scroll. One sensor subscription for the whole screen
+— eight slides are mounted at once — and every transform on the native driver.
+Ken Burns keeps running underneath. The translation budget is bounded by the
+Ken Burns overscan at its *smallest* scale, which is why the loop now runs at
+1.10×: it also fixed a pre-existing bug where `pan-left`/`pan-right` translated
+further than the image hid, showing a sliver of tint at each extreme.
+
+**Art direction.** The flat style-lock is replaced by a prose description of the
+supplied reference illustration — painterly, saturated, softly shaded, clean
+sky-blue grounds. A true image reference was investigated and **rejected on
+merit**: `flux/schnell/redux` takes no prompt at all (so every slide would
+ignore its own scene), and `flux/dev/image-to-image` contaminated content —
+it drew the reference's sunflower growing out of an unrelated jar. It survives
+behind `ZING_IMAGE_REF`, default off. Asking for a *painting* also cost two new
+rails — `no border`, `no signature` — because schnell started signing its work.
+
+**Upload caching.** A generated batch is cached against the hash of the bytes
+actually uploaded, plus difficulty. A repeat submission replays in under two
+seconds instead of ~45. A hit is served only after probing that its media is
+still alive, so a restarted dev server or a changed LAN IP forces a real run
+rather than playing dead links — a hit is never worse than a miss. The swarm
+narration still runs, at ~4% cadence: it is the evidence for the pitch, and
+cutting straight to a playing feed reads as a bug rather than as speed.
+**A fresh camera snap never hits** — new bytes. Replays must come from the
+library or the PDF (noted in [DEMO.md](DEMO.md)).
+
+**Two new dead-end guards**, both found by hand-checking a real batch:
+- A `multi` whose options are *all* correct grades "tap everything" as perfect.
+  One shipped. Now malformed, and dropped like any other bad question.
+- A `slider` whose keyed value no step can land on is unanswerable however well
+  the child reasons. One nearly shipped: `step: 12` with a key of 88 ±3 accepts
+  85–91, and the reachable stops are 84 and 96. Now validated.
+
+---
+
 ## Open — needs a human
 
 ### 1. Full rehearsal on the phone (ARCH §6, 2:40–3:00)

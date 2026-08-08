@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  FlatList,
+  AccessibilityInfo,
+  Animated,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
@@ -16,15 +17,17 @@ import {
   useAudioPlayerStatus,
   type AudioStatus,
 } from 'expo-audio';
+import { Accelerometer } from 'expo-sensors';
 import { colors, fill, radius, spacing, type } from '../theme';
 import { buildPages, questionCount, type Page } from '../lib/pages';
+import { createNarrationClock, slideNarration, wordIndexAt } from '../lib/narration';
 import { recordBatch } from '../lib/history';
 import { LessonSlidePage } from '../components/LessonSlidePage';
 import { MuteButton } from '../components/MuteButton';
-import { ProgressDots } from '../components/ProgressDots';
+import { PlayPauseButton } from '../components/PlayPauseButton';
 import { QuizPage, type RecordedAnswer } from '../components/QuizPage';
 import { ScoreCardPage } from '../components/ScoreCardPage';
-import type { Answer, BatchSpec, Question } from '../types/batch';
+import type { Answer, BatchSpec, Question, Slide } from '../types/batch';
 
 /**
  * The correct-answer chime (ARCH §4). Bundled with a literal `require()` rather
@@ -41,6 +44,40 @@ interface Props {
 }
 
 /**
+ * How often the audio player reports its position. `expo-audio` defaults to
+ * 500ms, which at ~2.6 words a second is over a word of lag — the karaoke
+ * highlight would visibly trail the voice. 100ms is a tenth of that and still
+ * only ten status events a second; the word index it feeds changes a few dozen
+ * times a clip, and the `FlatList` below is shielded from the difference by
+ * referentially stable props plus `memo` on the page components.
+ */
+const STATUS_INTERVAL_MS = 100;
+
+/** ~30Hz. Faster is wasted at 60fps once the low-pass below has run, and every
+ *  sample is a hop to the native animated node. */
+const SENSOR_INTERVAL_MS = 33;
+
+/**
+ * Low-pass on the raw accelerometer: `smoothed += α·(raw − smoothed)`, a time
+ * constant of about 33ms / 0.18 ≈ 180ms. A phone in a held hand jitters by a
+ * few hundredths of a g at 30Hz; this eats that without the parallax feeling
+ * like it is dragging behind the wrist.
+ */
+const TILT_SMOOTHING = 0.18;
+
+/**
+ * A far slower filter on pitch alone (τ ≈ 4s), used as the neutral that pitch
+ * is measured against. Roll has an honest zero — a phone not rolled reads ~0 —
+ * but pitch does not: everyone holds a phone at their own angle, and against a
+ * fixed neutral the image would sit pinned to its clamp all demo.
+ */
+const PITCH_NEUTRAL_SMOOTHING = 0.008;
+
+/** Full deflection at roughly 17° of roll and 12° of pitch away from neutral. */
+const ROLL_SPAN_G = 0.3;
+const PITCH_SPAN_G = 0.2;
+
+/**
  * The Batch Player (ARCH §4). A vertical paging FlatList of full-screen pages
  * with a per-page state machine: playing → question → feedback → playing → …
  * → scorecard.
@@ -52,15 +89,16 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
   const pages = useMemo(() => buildPages(batch), [batch]);
   const totalQuestions = questionCount(batch);
 
-  const listRef = useRef<FlatList<Page>>(null);
+  const listRef = useRef<Animated.FlatList<Page>>(null);
   const [index, setIndex] = useState(0);
   /** Nothing plays until the child taps — iPhone will not autoplay audio (ARCH §4). */
   const [started, setStarted] = useState(false);
   const [muted, setMuted] = useState(false);
+  /** Holds the whole slide still: voice, karaoke, Ken Burns and auto-advance. */
+  const [paused, setPaused] = useState(false);
   const [results, setResults] = useState<Map<string, RecordedAnswer>>(new Map());
-  const persisted = useRef(false);
 
-  const player = useAudioPlayer(null);
+  const player = useAudioPlayer(null, { updateInterval: STATUS_INTERVAL_MS });
   const status = useAudioPlayerStatus(player);
   // Its own player: the chime must not replace the narration clip mid-slide,
   // and it must not disturb the `didJustFinish` that drives auto-advance.
@@ -68,7 +106,18 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
 
   const page = pages[index];
   const activeSlide = page?.kind === 'slide' ? page.slide : null;
-  const answeredHere = page?.kind === 'quiz' ? results.has(page.question.id) : true;
+
+  // The two parallax drivers, owned here and handed down. Eight pages are
+  // mounted at once and eight accelerometer subscriptions would be a disaster,
+  // so there is exactly one of each for the whole screen (ARCH §4 / PRD §10).
+  const tilt = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const parallax = !reduceMotion;
+
+  // The karaoke highlight's one source of truth. It is a subscription rather
+  // than state so a moving word re-renders the narration and nothing else.
+  const narrationClock = useRef(createNarrationClock()).current;
 
   // iPhones ship with the silent switch on more often than not — without this
   // the whole demo is mute (ARCH §7).
@@ -77,6 +126,78 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
       // Not fatal: captions carry the batch if the mode can't be set.
     });
   }, []);
+
+  // Reduce Motion turns the parallax off; the Ken Burns drift, which was here
+  // before and is the slide's own pacing, keeps running.
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((on) => {
+        if (alive) setReduceMotion(on);
+      })
+      .catch(() => {
+        // Unknown means treat it as off — the same as never having asked.
+      });
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => {
+      alive = false;
+      subscription.remove();
+    };
+  }, []);
+
+  // The one accelerometer subscription. It only exists while a lesson slide is
+  // the page in view — a quiz card and the scorecard have no image to give
+  // depth to — and it is torn down when the screen goes away.
+  const onSlidePage = page?.kind === 'slide';
+  useEffect(() => {
+    if (!parallax || !onSlidePage) return;
+
+    let subscription: { remove(): void } | null = null;
+    let cancelled = false;
+    let roll = 0;
+    let pitch = 0;
+    let pitchNeutral = 0;
+    let seeded = false;
+
+    Accelerometer.isAvailableAsync()
+      .then((available) => {
+        if (!available || cancelled) return;
+        Accelerometer.setUpdateInterval(SENSOR_INTERVAL_MS);
+        subscription = Accelerometer.addListener(({ x, y }) => {
+          // Pitch and its neutral are seeded from the same first sample, so
+          // their difference starts at exactly zero however the phone happened
+          // to be held; seeding them apart would pin the image to a clamp for
+          // the four seconds the neutral takes to catch up. Roll needs no seed:
+          // it has an honest zero, and letting it low-pass up from there eases
+          // the parallax in over ~200ms instead of snapping it into place.
+          if (!seeded) {
+            pitch = y;
+            pitchNeutral = y;
+            seeded = true;
+          }
+          roll += TILT_SMOOTHING * (x - roll);
+          pitch += TILT_SMOOTHING * (y - pitch);
+          pitchNeutral += PITCH_NEUTRAL_SMOOTHING * (y - pitchNeutral);
+
+          // Clamped to −1…1 here, so every layer downstream only has to decide
+          // how many points that unit is worth to it.
+          tilt.setValue({
+            x: clampUnit(roll / ROLL_SPAN_G),
+            y: clampUnit((pitch - pitchNeutral) / PITCH_SPAN_G),
+          });
+        });
+      })
+      .catch(() => {
+        // No accelerometer (simulator, or a device that refuses): the slides
+        // keep their Ken Burns and their scroll parallax.
+      });
+
+    return () => {
+      cancelled = true;
+      subscription?.remove();
+      tilt.setValue({ x: 0, y: 0 });
+    };
+  }, [parallax, onSlidePage, tilt]);
 
   // Mirrored in a ref so `advance` can scroll without re-creating itself on
   // every page change (it is a dependency of the audio effects).
@@ -90,7 +211,9 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
     listRef.current?.scrollToIndex({ index: next, animated: true });
   }, [pages.length]);
 
-  // Load and play the active slide's clip; a quiz or scorecard page pauses it.
+  // Load the active slide's clip; a quiz or scorecard page pauses it. Starting
+  // it is the transport effect's job below — this one must not depend on
+  // `paused`, because re-running `replace()` would rewind the clip to zero.
   useEffect(() => {
     if (!started) return;
 
@@ -98,7 +221,6 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
       try {
         player.replace(activeSlide.audioUrl);
         player.muted = muted;
-        player.play();
       } catch {
         // A clip that won't load just means this slide runs on the timer below.
       }
@@ -106,6 +228,18 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
       player.pause();
     }
   }, [started, activeSlide, player]);
+
+  // Play/pause, kept apart from the load above so a resume picks the clip up
+  // where the child stopped it rather than replaying the slide.
+  useEffect(() => {
+    if (!started || !activeSlide?.audioUrl) return;
+    try {
+      if (paused) player.pause();
+      else player.play();
+    } catch {
+      // Same as the load: a clip that won't respond falls back to the timer.
+    }
+  }, [paused, started, activeSlide, player]);
 
   // One mute for the whole batch — the chime is narration's neighbour, not an
   // exception to it.
@@ -131,13 +265,65 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
     advance();
   }, [status, started, activeSlide, advance]);
 
-  // Silent slide (ElevenLabs cut, or the bundled fallback batch): advance on a
-  // read-length timer instead, so the feed still moves on its own.
+  // A silent slide's read-length budget, spent down as the timer below runs.
+  // Declared before that effect so a slide change refills it *after* the old
+  // timer's cleanup has debited it and before the new one is armed.
+  const silentRemaining = useRef(0);
   useEffect(() => {
-    if (!started || !activeSlide || activeSlide.audioUrl) return;
-    const timer = setTimeout(advance, estimateNarrationMs(activeSlide.narration));
-    return () => clearTimeout(timer);
-  }, [started, activeSlide, advance]);
+    silentRemaining.current =
+      activeSlide && !activeSlide.audioUrl ? estimateNarrationMs(activeSlide.narration) : 0;
+  }, [activeSlide]);
+
+  // Silent slide (ElevenLabs cut, or the bundled fallback batch): advance on a
+  // read-length timer instead, so the feed still moves on its own. Pausing
+  // banks whatever is left rather than restarting the slide's clock, or the
+  // feed would never advance for a child who pauses often.
+  useEffect(() => {
+    if (!started || paused || !activeSlide || activeSlide.audioUrl) return;
+    const armedAt = Date.now();
+    const timer = setTimeout(advance, silentRemaining.current);
+    return () => {
+      clearTimeout(timer);
+      silentRemaining.current = Math.max(0, silentRemaining.current - (Date.now() - armedAt));
+    };
+  }, [started, paused, activeSlide, advance]);
+
+  const narrationTimings = useMemo(
+    () => (activeSlide ? slideNarration(activeSlide).timings : null),
+    [activeSlide],
+  );
+
+  // Which word the teacher voice is on. `status` arrives ten times a second but
+  // a narration is only 34–51 words long, so the derived index changes a few
+  // dozen times a clip — and `setIndex` drops every tick that lands on the same
+  // word, which is what keeps the ~40 `<Text>` nodes from re-rendering at 10Hz.
+  const armedFor = useRef<Slide | null>(null);
+  const lastPosition = useRef(0);
+  useEffect(() => {
+    if (!started || !narrationTimings) {
+      narrationClock.setIndex(-1);
+      return;
+    }
+
+    const position = status.currentTime;
+
+    // `status` keeps holding the previous clip's last event until the new clip
+    // reports one of its own, and acting on that would light a word from the
+    // wrong narration. A clip always starts at zero, so wait for the position
+    // to fall back before trusting it for this slide.
+    if (armedFor.current !== activeSlide) {
+      const restarted = position <= 0.4 || position < lastPosition.current;
+      lastPosition.current = position;
+      if (!restarted) {
+        narrationClock.setIndex(-1);
+        return;
+      }
+      armedFor.current = activeSlide;
+    }
+
+    lastPosition.current = position;
+    narrationClock.setIndex(wordIndexAt(narrationTimings, position * 1000));
+  }, [status, started, activeSlide, narrationTimings, narrationClock]);
 
   const onAnswered = useCallback(
     (question: Question, answer: Answer, correct: boolean) => {
@@ -159,12 +345,24 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
     [chime],
   );
 
-  // Persist once, when the scorecard first comes into view.
+  // Names this play-through so a late answer rewrites its History row rather
+  // than filing a second one. The screen is keyed on `batchId` upstream, so
+  // one mount is exactly one play.
+  const playId = useMemo(() => `${batch.batchId}-${Date.now()}`, [batch.batchId]);
+
+  // Persist when the scorecard first comes into view — and again if a skipped
+  // question is answered on the way back up, or the stored row and the card the
+  // child is looking at would disagree. `results` is only replaced when an
+  // answer lands, so holding the written map is enough to keep this quiet while
+  // the child scrolls around the finished feed.
+  const reachedEnd = useRef(false);
+  const written = useRef<Map<string, RecordedAnswer> | null>(null);
   useEffect(() => {
-    if (page?.kind !== 'scorecard' || persisted.current) return;
-    persisted.current = true;
-    void recordBatch(batch, new Map([...results].map(([id, r]) => [id, r.correct])));
-  }, [page, batch, results]);
+    if (page?.kind === 'scorecard') reachedEnd.current = true;
+    if (!reachedEnd.current || written.current === results) return;
+    written.current = results;
+    void recordBatch(batch, new Map([...results].map(([id, r]) => [id, r.correct])), playId);
+  }, [page, batch, results, playId]);
 
   const onMomentumScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -174,6 +372,35 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
     },
     [height],
   );
+
+  // The pager's own offset, straight onto the UI thread — this is the second
+  // parallax driver, and it never touches JS while the finger is down.
+  const onScroll = useMemo(
+    () =>
+      Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+        useNativeDriver: true,
+      }),
+    [scrollY],
+  );
+
+  // Referentially stable so the ten-a-second status renders above cannot
+  // invalidate the list's props and push a re-render down through every cell.
+  const getItemLayout = useCallback(
+    (_: ArrayLike<Page> | null | undefined, i: number) => ({
+      length: height,
+      offset: height * i,
+      index: i,
+    }),
+    [height],
+  );
+  const toggleMute = useCallback(() => setMuted((m) => !m), []);
+  const togglePaused = useCallback(() => setPaused((p) => !p), []);
+
+  // Scrolling on is an intent to keep going, so a page change lifts the pause
+  // rather than leaving the next slide silently frozen.
+  useEffect(() => {
+    setPaused(false);
+  }, [index]);
 
   const score = useMemo(
     () => [...results.values()].filter((result) => result.correct).length,
@@ -207,7 +434,16 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
               slide={item.slide}
               pageIndex={pageIndex}
               height={height}
+              width={width}
               active={started && pageIndex === index}
+              // Stays `active` while paused — the lit word holds where the
+              // voice stopped instead of the highlight dropping off the block.
+              paused={paused && pageIndex === index}
+              bottomInset={insets.bottom}
+              tilt={tilt}
+              scrollY={scrollY}
+              clock={narrationClock}
+              parallax={parallax}
             />
           );
         case 'quiz':
@@ -229,6 +465,7 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
               score={score}
               streak={streak}
               total={totalQuestions}
+              skipped={totalQuestions - results.size}
               height={height}
               width={width}
               onMakeItHarder={onMakeItHarder}
@@ -242,14 +479,20 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
       batch,
       height,
       index,
+      insets.bottom,
       makeItHarderBusy,
+      narrationClock,
       onAnswered,
       onDone,
       onMakeItHarder,
+      parallax,
+      paused,
       results,
       score,
+      scrollY,
       started,
       streak,
+      tilt,
       totalQuestions,
       width,
     ],
@@ -257,25 +500,32 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
 
   return (
     <View style={styles.root}>
-      <FlatList
+      <Animated.FlatList
         ref={listRef}
         data={pages}
-        keyExtractor={(item) => item.key}
+        keyExtractor={pageKey}
         renderItem={renderPage}
         pagingEnabled
         showsVerticalScrollIndicator={false}
-        // Locked while a question is unanswered — the child answers, then scrolls.
-        scrollEnabled={answeredHere}
+        // The feed is never locked. A question can be swiped past like any other
+        // page and answered later on the way back — a child stuck on one is a
+        // child who stops scrolling, and the scorecard says what is still open.
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         onMomentumScrollEnd={onMomentumScrollEnd}
-        getItemLayout={(_, i) => ({ length: height, offset: height * i, index: i })}
+        getItemLayout={getItemLayout}
         decelerationRate="fast"
         windowSize={3}
         initialNumToRender={2}
       />
 
       <View style={[styles.hud, { top: insets.top + spacing.sm }]} pointerEvents="box-none">
-        <ProgressDots total={pages.length} index={index} />
-        <MuteButton muted={muted} onToggle={() => setMuted((m) => !m)} />
+        {/* Only a slide has something to hold still; a quiz waits on the child
+            already, and the scorecard is over. */}
+        {started && onSlidePage ? (
+          <PlayPauseButton paused={paused} onToggle={togglePaused} />
+        ) : null}
+        <MuteButton muted={muted} onToggle={toggleMute} />
       </View>
 
       {!started ? (
@@ -299,6 +549,13 @@ export function BatchPlayerScreen({ batch, onMakeItHarder, onDone, makeItHarderB
   );
 }
 
+/** Hoisted so the list's props stay identical across the status re-renders. */
+const pageKey = (item: Page) => item.key;
+
+function clampUnit(value: number): number {
+  return value < -1 ? -1 : value > 1 ? 1 : value;
+}
+
 /** ~2.6 words a second, clamped, for slides that have no clip to end on. */
 function estimateNarrationMs(narration: string): number {
   const words = narration.trim().split(/\s+/).length;
@@ -313,11 +570,12 @@ const styles = StyleSheet.create({
     right: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    // Only the mute button lives here now that the progress dots are hidden.
+    justifyContent: 'flex-end',
   },
   startOverlay: {
     ...fill,
-    backgroundColor: 'rgba(11, 11, 20, 0.82)',
+    backgroundColor: 'rgba(4, 7, 10, 0.82)',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
@@ -337,5 +595,5 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
   },
-  startPillText: { ...type.option, color: colors.text, fontSize: 18 },
+  startPillText: { ...type.option, color: colors.onAccent, fontSize: 18 },
 });

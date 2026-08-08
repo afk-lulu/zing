@@ -85,5 +85,5 @@ const styles = StyleSheet.create({
   },
   badgeOn: { borderColor: colors.accent, backgroundColor: colors.accent },
   badgeText: { ...type.body, color: colors.textDim, fontWeight: '900' },
-  badgeTextOn: { color: colors.text },
+  badgeTextOn: { color: colors.onAccent },
 });

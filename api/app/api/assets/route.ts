@@ -4,7 +4,7 @@ import { pickVoiceId, synthesizeNarration } from '@/lib/elevenlabs';
 import { hostAudio } from '@/lib/blob';
 import { StageError, fail, ok, readBody } from '@/lib/http';
 import { resetMockCounters } from '@/lib/mock';
-import { BatchSpec, MAX_IMAGES, allSlides } from '@/lib/schema';
+import { BatchSpec, MAX_IMAGES, allSlides, type Slide } from '@/lib/schema';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -64,16 +64,20 @@ export async function POST(request: Request) {
       ),
       mapWithLimit(slides, (slide, index) =>
         attempt(`audio ${index}`, async () => {
-          const bytes = await synthesizeNarration(slide.narration, voiceId);
-          slide.audioUrl = await hostAudio(bytes, `${filled.batchId}-${index}`, host);
+          const { audio, words } = await synthesizeNarration(slide.narration, voiceId);
+          slide.audioUrl = await hostAudio(audio, `${filled.batchId}-${index}`, host);
+          // Only alongside a clip: timings with nothing to play against are noise.
+          if (words?.length) slide.narrationWords = words;
         }),
       ),
     ]);
 
     const images = slides.filter((slide) => slide.imageUrl).length;
     const audio = slides.filter((slide) => slide.audioUrl).length;
+    const timed = slides.filter((slide) => slide.narrationWords?.length).length;
     console.log(
-      `[zing:assets] ${Date.now() - started}ms · images ${images}/${slides.length} · audio ${audio}/${slides.length}`,
+      `[zing:assets] ${Date.now() - started}ms · images ${images}/${slides.length} · ` +
+        `audio ${audio}/${slides.length} · word timings ${timed}/${slides.length}`,
     );
 
     return ok({ batch: filled });
@@ -88,8 +92,8 @@ export async function POST(request: Request) {
  * slow clip cannot leave a worker idle while another still has work queued.
  */
 function mapWithLimit(
-  slides: { imagePrompt: string; narration: string; imageUrl?: string; audioUrl?: string }[],
-  task: (slide: (typeof slides)[number], index: number) => Promise<void>,
+  slides: Slide[],
+  task: (slide: Slide, index: number) => Promise<void>,
 ): Promise<unknown> {
   let cursor = 0;
   const worker = async () => {

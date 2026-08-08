@@ -1,6 +1,7 @@
 import { Image } from 'react-native';
 import type { BatchSpec, Difficulty } from '../types/batch';
 import { getChallengeBatch, getFallbackBatch } from './fallback';
+import { batchCacheKey, cachedMediaIsLive, readCachedBatch, writeCachedBatch } from './batchCache';
 
 /**
  * The app is the Orchestrator's hands (ARCH §1): it calls the four stages in
@@ -30,14 +31,24 @@ export interface WorksheetSource {
   data: string;
   /** Required for `image`, e.g. "image/jpeg". */
   mediaType?: string;
+  /**
+   * Content hash of the bytes in `data`, from `worksheet.ts`. Keys the replay
+   * cache; absent means this worksheet is not cacheable and the pipeline runs
+   * normally.
+   */
+  fingerprint?: string;
 }
 
 export interface PipelineResult {
   batch: BatchSpec;
   /** True when the child is looking at the bundled batch, not a fresh one. */
   usedFallback: boolean;
+  /** True when this batch was replayed from the cache rather than generated. */
+  fromCache?: boolean;
   /** Kept so **Make it harder** can re-run compose+assets at level+1. */
   context?: { extraction: unknown; research: unknown };
+  /** Kept so **Make it harder** can find this worksheet's cached Challenge batch. */
+  sourceFingerprint?: string;
 }
 
 export interface RunPipelineOptions {
@@ -92,8 +103,52 @@ export function prefetchSlideImages(batch: BatchSpec): void {
   }
 }
 
+/**
+ * How long each agent line holds when a batch comes back from the cache.
+ *
+ * A hit could return in a single frame, and the first instinct is to let it.
+ * But the Generating screen is not a spinner — it is the proof of the pitch's
+ * central claim (PRD §5 priority 4, ARCH §1: "progress narration is real, not
+ * simulated"), and the demo script spends a whole beat on it (PRD §9.2). Cutting
+ * straight from a tap to a playing feed reads as a screen that failed to appear,
+ * which on stage looks like a bug rather than like speed.
+ *
+ * So a hit still walks the same four agents, at ~4% of the real cadence: the
+ * story stays continuous and the presenter keeps a sentence to land ("Zing
+ * already knows this worksheet"), while ~1.0s here plus the existing 800ms
+ * ready-dwell puts the batch on screen in under two seconds against ~45s. It is
+ * also not a lie about the swarm — nobody watching four lines flash past thinks
+ * an agent ran. Set to 0 to make replays truly instant during rehearsal.
+ */
+export const CACHE_REPLAY_STAGE_MS = 260;
+
+async function narrateCacheHit(onStage?: (stage: StageId) => void): Promise<void> {
+  for (const entry of STAGE_SCRIPT) {
+    onStage?.(entry.id);
+    if (entry.id === 'ready' || CACHE_REPLAY_STAGE_MS <= 0) continue;
+    await new Promise((resolve) => setTimeout(resolve, CACHE_REPLAY_STAGE_MS));
+  }
+}
+
 export async function runPipeline(options: RunPipelineOptions): Promise<PipelineResult> {
   const { source, difficulty, onStage } = options;
+
+  // Replay check first, and deliberately outside the 90s deadline below: a hit
+  // costs one probe round-trip, and a miss should still get the full budget.
+  const cacheKey = batchCacheKey(source.fingerprint, difficulty);
+  if (cacheKey) {
+    const cached = await readCachedBatch(cacheKey);
+    if (cached && (await cachedMediaIsLive(cached))) {
+      prefetchSlideImages(cached);
+      await narrateCacheHit(onStage);
+      return {
+        batch: cached,
+        usedFallback: false,
+        fromCache: true,
+        sourceFingerprint: source.fingerprint,
+      };
+    }
+  }
 
   const controller = new AbortController();
   const deadline = setTimeout(() => controller.abort(), PIPELINE_DEADLINE_MS);
@@ -133,8 +188,17 @@ export async function runPipeline(options: RunPipelineOptions): Promise<Pipeline
     );
 
     prefetchSlideImages(batch);
+    // Only a real batch is worth replaying. The bundled fallback is never
+    // cached: its media is on disk already, and storing it under a worksheet's
+    // key would pin that worksheet to the insurance batch forever.
+    if (cacheKey) void writeCachedBatch(cacheKey, batch);
     onStage?.('ready');
-    return { batch, usedFallback: false, context: { extraction, research } };
+    return {
+      batch,
+      usedFallback: false,
+      context: { extraction, research },
+      sourceFingerprint: source.fingerprint,
+    };
   } catch (error) {
     console.warn('[zing] pipeline fell back —', error instanceof Error ? error.message : error);
     onStage?.('ready');
@@ -153,7 +217,31 @@ export async function runPipeline(options: RunPipelineOptions): Promise<Pipeline
 export const LIVE_MAKE_IT_HARDER = false;
 
 export async function makeItHarder(previous: PipelineResult): Promise<PipelineResult> {
-  if (!LIVE_MAKE_IT_HARDER || !previous.context) {
+  // The demo path is the bundled Challenge batch, full stop — the cache is not
+  // consulted and cannot get between the button and ARCH §5's insurance.
+  if (!LIVE_MAKE_IT_HARDER) {
+    return { batch: getChallengeBatch(), usedFallback: true };
+  }
+
+  // Live path only. Checked before the context guard, so a run that was itself
+  // a replay (and therefore has no extraction/research to reuse) can still
+  // serve a real Challenge batch if it generated one earlier.
+  const cacheKey = batchCacheKey(previous.sourceFingerprint, 'challenge');
+  if (cacheKey) {
+    const cached = await readCachedBatch(cacheKey);
+    if (cached && (await cachedMediaIsLive(cached))) {
+      prefetchSlideImages(cached);
+      return {
+        batch: cached,
+        usedFallback: false,
+        fromCache: true,
+        context: previous.context,
+        sourceFingerprint: previous.sourceFingerprint,
+      };
+    }
+  }
+
+  if (!previous.context) {
     return { batch: getChallengeBatch(), usedFallback: true };
   }
 
@@ -172,7 +260,13 @@ export async function makeItHarder(previous: PipelineResult): Promise<PipelineRe
       controller.signal,
     );
     prefetchSlideImages(batch);
-    return { batch, usedFallback: false, context: previous.context };
+    if (cacheKey) void writeCachedBatch(cacheKey, batch);
+    return {
+      batch,
+      usedFallback: false,
+      context: previous.context,
+      sourceFingerprint: previous.sourceFingerprint,
+    };
   } catch (error) {
     console.warn('[zing] make-it-harder fell back —', error instanceof Error ? error.message : error);
     return { batch: getChallengeBatch(), usedFallback: true };

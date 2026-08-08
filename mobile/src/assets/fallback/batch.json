@@ -1,5 +1,5 @@
 {
-  "batchId": "107183ed-9cf0-4f1d-9a75-4bfccea64d95",
+  "batchId": "846419d5-df87-4156-9e70-ff9a8ee29150",
   "topicSummary": "Fractions + animal habitats + water cycle",
   "subjects": [
     "Math · Fractions",
@@ -8,9 +8,9 @@
   ],
   "difficulty": "on-level",
   "encouragement": {
-    "high": "You put in real work today and it shows — you can now talk about fractions, animal habitats, and the water cycle like a true scientist and mathematician. Keep bringing that effort every time!",
-    "mid": "You tackled three big topics today and walked away knowing things you didn't know before — from how water travels through the sky to where animals make their homes. Keep practicing and watch those pieces click into place.",
-    "low": "Every question you worked through today taught your brain something new about fractions, animal habitats, and the water cycle — and that learning is real, even when answers are tricky. Come back, give it another go, and you'll see yourself grow."
+    "high": "You put in real work today and it shows — fractions, animal habitats, and the water cycle are all sticking in your brain now. Keep bringing that effort and there's no stopping you!",
+    "mid": "You tackled three big topics today and got a lot of them right — that's genuine learning happening. A little more practice on the tricky parts and you'll have all of it locked down.",
+    "low": "Every question you got wrong today showed you exactly where to dig in next, and that's actually how learning works. You now know more about fractions, animal habitats, and the water cycle than you did before you started — keep going!"
   },
   "groups": [
     {
@@ -18,15 +18,434 @@
         {
           "slides": [
             {
-              "narration": "Imagine you and your friends are sharing identical chocolate bars. If you cut a bar into more pieces, each piece gets smaller — so a bigger denominator means smaller slices.",
-              "caption": "More pieces, smaller each piece",
-              "imagePrompt": "Two identical chocolate bars side by side on a wooden table, the left one cut into four thick equal pieces and the right one cut into eight thin equal pieces, showing clearly that the eight pieces are smaller than the four pieces",
+              "narrationWords": [
+                {
+                  "word": "When",
+                  "startMs": 0,
+                  "endMs": 174
+                },
+                {
+                  "word": "a",
+                  "startMs": 197,
+                  "endMs": 221
+                },
+                {
+                  "word": "shape",
+                  "startMs": 279,
+                  "endMs": 546
+                },
+                {
+                  "word": "is",
+                  "startMs": 592,
+                  "endMs": 685
+                },
+                {
+                  "word": "split",
+                  "startMs": 743,
+                  "endMs": 1115
+                },
+                {
+                  "word": "into",
+                  "startMs": 1184,
+                  "endMs": 1393
+                },
+                {
+                  "word": "equal",
+                  "startMs": 1486,
+                  "endMs": 1811
+                },
+                {
+                  "word": "parts,",
+                  "startMs": 1892,
+                  "endMs": 2473
+                },
+                {
+                  "word": "the",
+                  "startMs": 2647,
+                  "endMs": 2763
+                },
+                {
+                  "word": "shaded",
+                  "startMs": 2821,
+                  "endMs": 3193
+                },
+                {
+                  "word": "and",
+                  "startMs": 3262,
+                  "endMs": 3378
+                },
+                {
+                  "word": "unshaded",
+                  "startMs": 3495,
+                  "endMs": 4052
+                },
+                {
+                  "word": "parts",
+                  "startMs": 4110,
+                  "endMs": 4435
+                },
+                {
+                  "word": "always",
+                  "startMs": 4493,
+                  "endMs": 4934
+                },
+                {
+                  "word": "add",
+                  "startMs": 4992,
+                  "endMs": 5236
+                },
+                {
+                  "word": "up",
+                  "startMs": 5283,
+                  "endMs": 5375
+                },
+                {
+                  "word": "to",
+                  "startMs": 5433,
+                  "endMs": 5503
+                },
+                {
+                  "word": "one",
+                  "startMs": 5619,
+                  "endMs": 5863
+                },
+                {
+                  "word": "whole.",
+                  "startMs": 5886,
+                  "endMs": 6409
+                },
+                {
+                  "word": "That",
+                  "startMs": 6920,
+                  "endMs": 7117
+                },
+                {
+                  "word": "means",
+                  "startMs": 7175,
+                  "endMs": 7454
+                },
+                {
+                  "word": "if",
+                  "startMs": 7500,
+                  "endMs": 7570
+                },
+                {
+                  "word": "you",
+                  "startMs": 7616,
+                  "endMs": 7698
+                },
+                {
+                  "word": "know",
+                  "startMs": 7756,
+                  "endMs": 7895
+                },
+                {
+                  "word": "how",
+                  "startMs": 7965,
+                  "endMs": 8104
+                },
+                {
+                  "word": "many",
+                  "startMs": 8162,
+                  "endMs": 8348
+                },
+                {
+                  "word": "parts",
+                  "startMs": 8417,
+                  "endMs": 8684
+                },
+                {
+                  "word": "are",
+                  "startMs": 8719,
+                  "endMs": 8812
+                },
+                {
+                  "word": "shaded,",
+                  "startMs": 8847,
+                  "endMs": 9311
+                },
+                {
+                  "word": "you",
+                  "startMs": 9520,
+                  "endMs": 9625
+                },
+                {
+                  "word": "already",
+                  "startMs": 9718,
+                  "endMs": 10054
+                },
+                {
+                  "word": "have",
+                  "startMs": 10112,
+                  "endMs": 10310
+                },
+                {
+                  "word": "what",
+                  "startMs": 10333,
+                  "endMs": 10472
+                },
+                {
+                  "word": "you",
+                  "startMs": 10519,
+                  "endMs": 10612
+                },
+                {
+                  "word": "need",
+                  "startMs": 10693,
+                  "endMs": 10972
+                },
+                {
+                  "word": "to",
+                  "startMs": 11018,
+                  "endMs": 11076
+                },
+                {
+                  "word": "figure",
+                  "startMs": 11157,
+                  "endMs": 11459
+                },
+                {
+                  "word": "out",
+                  "startMs": 11494,
+                  "endMs": 11633
+                },
+                {
+                  "word": "the",
+                  "startMs": 11668,
+                  "endMs": 11749
+                },
+                {
+                  "word": "unshaded",
+                  "startMs": 11831,
+                  "endMs": 12365
+                },
+                {
+                  "word": "fraction.",
+                  "startMs": 12411,
+                  "endMs": 13096
+                }
+              ],
+              "narration": "When a shape is split into equal parts, the shaded and unshaded parts always add up to one whole. That means if you know how many parts are shaded, you already have what you need to figure out the unshaded fraction.",
+              "caption": "Shaded and unshaded make one whole.",
+              "imagePrompt": "A large chocolate bar broken into eight equal rectangular pieces lying on a wooden table, with three pieces wrapped in shiny gold foil and five pieces unwrapped and plain, warm kitchen light overhead",
               "kenBurns": "zoom-in"
             },
             {
-              "narration": "When two fractions share the same numerator, the one with the bigger denominator is actually the smaller fraction because its pieces are tinier. So three eighths is smaller than three fourths, since eighths are much smaller slices than fourths.",
-              "caption": "Same top number, bigger bottom = smaller",
-              "imagePrompt": "Two round pizzas of equal size on a kitchen counter, one sliced into four generous pieces with three pieces highlighted and one sliced into eight slim pieces with three pieces highlighted, making it clear the three highlighted pieces on the right are much smaller",
+              "narrationWords": [
+                {
+                  "word": "Just",
+                  "startMs": 0,
+                  "endMs": 221
+                },
+                {
+                  "word": "count",
+                  "startMs": 290,
+                  "endMs": 522
+                },
+                {
+                  "word": "the",
+                  "startMs": 580,
+                  "endMs": 650
+                },
+                {
+                  "word": "parts",
+                  "startMs": 708,
+                  "endMs": 1033
+                },
+                {
+                  "word": "that",
+                  "startMs": 1115,
+                  "endMs": 1242
+                },
+                {
+                  "word": "are",
+                  "startMs": 1277,
+                  "endMs": 1382
+                },
+                {
+                  "word": "not",
+                  "startMs": 1440,
+                  "endMs": 1614
+                },
+                {
+                  "word": "shaded",
+                  "startMs": 1695,
+                  "endMs": 2136
+                },
+                {
+                  "word": "—",
+                  "startMs": 2252,
+                  "endMs": 2311
+                },
+                {
+                  "word": "those",
+                  "startMs": 2752,
+                  "endMs": 3042
+                },
+                {
+                  "word": "become",
+                  "startMs": 3088,
+                  "endMs": 3379
+                },
+                {
+                  "word": "the",
+                  "startMs": 3413,
+                  "endMs": 3483
+                },
+                {
+                  "word": "top",
+                  "startMs": 3553,
+                  "endMs": 3831
+                },
+                {
+                  "word": "number",
+                  "startMs": 3924,
+                  "endMs": 4215
+                },
+                {
+                  "word": "of",
+                  "startMs": 4284,
+                  "endMs": 4342
+                },
+                {
+                  "word": "your",
+                  "startMs": 4400,
+                  "endMs": 4540
+                },
+                {
+                  "word": "fraction,",
+                  "startMs": 4621,
+                  "endMs": 5283
+                },
+                {
+                  "word": "and",
+                  "startMs": 5492,
+                  "endMs": 5631
+                },
+                {
+                  "word": "the",
+                  "startMs": 5677,
+                  "endMs": 5747
+                },
+                {
+                  "word": "total",
+                  "startMs": 5805,
+                  "endMs": 6107
+                },
+                {
+                  "word": "number",
+                  "startMs": 6176,
+                  "endMs": 6420
+                },
+                {
+                  "word": "of",
+                  "startMs": 6478,
+                  "endMs": 6548
+                },
+                {
+                  "word": "equal",
+                  "startMs": 6606,
+                  "endMs": 6850
+                },
+                {
+                  "word": "parts",
+                  "startMs": 6920,
+                  "endMs": 7233
+                },
+                {
+                  "word": "is",
+                  "startMs": 7291,
+                  "endMs": 7396
+                },
+                {
+                  "word": "always",
+                  "startMs": 7465,
+                  "endMs": 7848
+                },
+                {
+                  "word": "the",
+                  "startMs": 7906,
+                  "endMs": 7976
+                },
+                {
+                  "word": "bottom.",
+                  "startMs": 8022,
+                  "endMs": 8498
+                },
+                {
+                  "word": "You",
+                  "startMs": 8882,
+                  "endMs": 9009
+                },
+                {
+                  "word": "are",
+                  "startMs": 9067,
+                  "endMs": 9172
+                },
+                {
+                  "word": "simply",
+                  "startMs": 9207,
+                  "endMs": 9532
+                },
+                {
+                  "word": "finding",
+                  "startMs": 9601,
+                  "endMs": 10043
+                },
+                {
+                  "word": "what",
+                  "startMs": 10101,
+                  "endMs": 10252
+                },
+                {
+                  "word": "is",
+                  "startMs": 10298,
+                  "endMs": 10391
+                },
+                {
+                  "word": "left",
+                  "startMs": 10472,
+                  "endMs": 10728
+                },
+                {
+                  "word": "over",
+                  "startMs": 10797,
+                  "endMs": 11076
+                },
+                {
+                  "word": "after",
+                  "startMs": 11146,
+                  "endMs": 11378
+                },
+                {
+                  "word": "the",
+                  "startMs": 11436,
+                  "endMs": 11505
+                },
+                {
+                  "word": "shaded",
+                  "startMs": 11552,
+                  "endMs": 11889
+                },
+                {
+                  "word": "parts",
+                  "startMs": 11947,
+                  "endMs": 12249
+                },
+                {
+                  "word": "are",
+                  "startMs": 12272,
+                  "endMs": 12376
+                },
+                {
+                  "word": "taken.",
+                  "startMs": 12411,
+                  "endMs": 13050
+                }
+              ],
+              "narration": "Just count the parts that are not shaded — those become the top number of your fraction, and the total number of equal parts is always the bottom. You are simply finding what is left over after the shaded parts are taken.",
+              "caption": "Count what is left for the unshaded fraction.",
+              "imagePrompt": "A friendly cartoon child pointing at a long rectangular cake on a countertop divided into eight equal slices, three slices covered with bright pink frosting and five slices plain and unfrosted, colorful kitchen background",
               "kenBurns": "zoom-out"
             }
           ]
@@ -34,51 +453,14 @@
       ],
       "quiz": {
         "id": "q1",
-        "prompt": "Place 3/8 on the number line. Where does it land between 0 and 1?",
-        "explanation": "3/8 means 3 out of 8 equal parts, which equals 0.375 — just under 40% of the way from 0 to 1.",
-        "type": "slider",
-        "config": {
-          "min": 0,
-          "max": 100,
-          "step": 5,
-          "unit": "%"
-        },
-        "answerKey": {
-          "mode": "numeric-tolerance",
-          "value": 40,
-          "tolerance": 5
-        }
-      }
-    },
-    {
-      "lessons": [
-        {
-          "slides": [
-            {
-              "narration": "Here is something surprising — a polar bear's fur is actually transparent, not white, but it channels sunlight to keep the bear warm in freezing Arctic air. That one amazing feature tells you something important: a polar bear's body is built for exactly one kind of place.",
-              "caption": "Animals are built for one special place.",
-              "imagePrompt": "A large polar bear standing on a snowy Arctic landscape beside a patch of icy ocean water, with a pale sky and gentle snowflakes drifting down, photographed in a realistic painterly style",
-              "kenBurns": "pan-left"
-            },
-            {
-              "narration": "Every habitat is like a checklist — it must give an animal food, fresh water, shelter, and enough space to live and grow. When all four boxes are checked, the animal's body and habits fit that place like a perfect puzzle piece, and that is exactly where you will find it in the wild.",
-              "caption": "Food, water, shelter, and space — all four.",
-              "imagePrompt": "A lush river-valley scene split into gentle layers showing a deer drinking from a stream, dense trees providing shade and cover, and open meadow stretching behind it, in a warm illustrated style",
-              "kenBurns": "pan-right"
-            }
-          ]
-        }
-      ],
-      "quiz": {
-        "id": "q2",
-        "prompt": "A bottlenose dolphin breathes air, hunts fish, and regulates its own body temperature. Which habitat supplies everything its biology requires?",
-        "explanation": "A bottlenose dolphin's body is built for warm saltwater — the right prey, the right buoyancy, and the right temperature range are all there. Its biology fits the ocean, not by preference, but because only that habitat meets every need.",
+        "prompt": "A bar is split into 8 equal parts and 3 are shaded. Which fraction names the unshaded part?",
+        "explanation": "8 parts total minus 3 shaded leaves 5 unshaded, so the unshaded fraction is 5/8.",
         "type": "single",
         "config": {
           "options": [
-            "Arctic tundra",
-            "Saltwater ocean",
-            "Freshwater river"
+            "3/8",
+            "5/8",
+            "3/5"
           ]
         },
         "answerKey": {
@@ -92,15 +474,830 @@
         {
           "slides": [
             {
-              "narration": "Every living thing needs a habitat that fits its body perfectly. A polar bear's thick, oily fur is built exactly for icy Arctic winds and freezing water, so that habitat gives the bear everything its body is designed to use.",
-              "caption": "Body features match the habitat.",
-              "imagePrompt": "A large polar bear with thick creamy-white fur standing on a wide sheet of Arctic sea ice, with a pale blue sky and chunks of floating ice visible in the calm frigid water around it.",
+              "narrationWords": [
+                {
+                  "word": "When",
+                  "startMs": 0,
+                  "endMs": 186
+                },
+                {
+                  "word": "you",
+                  "startMs": 221,
+                  "endMs": 290
+                },
+                {
+                  "word": "add",
+                  "startMs": 372,
+                  "endMs": 534
+                },
+                {
+                  "word": "fractions",
+                  "startMs": 604,
+                  "endMs": 1161
+                },
+                {
+                  "word": "with",
+                  "startMs": 1196,
+                  "endMs": 1324
+                },
+                {
+                  "word": "the",
+                  "startMs": 1359,
+                  "endMs": 1428
+                },
+                {
+                  "word": "same",
+                  "startMs": 1463,
+                  "endMs": 1718
+                },
+                {
+                  "word": "denominator,",
+                  "startMs": 1753,
+                  "endMs": 2624
+                },
+                {
+                  "word": "the",
+                  "startMs": 2833,
+                  "endMs": 2937
+                },
+                {
+                  "word": "bottom",
+                  "startMs": 3007,
+                  "endMs": 3321
+                },
+                {
+                  "word": "number",
+                  "startMs": 3379,
+                  "endMs": 3646
+                },
+                {
+                  "word": "stays",
+                  "startMs": 3715,
+                  "endMs": 4052
+                },
+                {
+                  "word": "the",
+                  "startMs": 4122,
+                  "endMs": 4191
+                },
+                {
+                  "word": "same",
+                  "startMs": 4249,
+                  "endMs": 4563
+                },
+                {
+                  "word": "because",
+                  "startMs": 4609,
+                  "endMs": 4876
+                },
+                {
+                  "word": "the",
+                  "startMs": 4911,
+                  "endMs": 4980
+                },
+                {
+                  "word": "size",
+                  "startMs": 5039,
+                  "endMs": 5410
+                },
+                {
+                  "word": "of",
+                  "startMs": 5445,
+                  "endMs": 5503
+                },
+                {
+                  "word": "each",
+                  "startMs": 5549,
+                  "endMs": 5712
+                },
+                {
+                  "word": "piece",
+                  "startMs": 5770,
+                  "endMs": 6095
+                },
+                {
+                  "word": "never",
+                  "startMs": 6153,
+                  "endMs": 6409
+                },
+                {
+                  "word": "changes.",
+                  "startMs": 6467,
+                  "endMs": 7059
+                },
+                {
+                  "word": "You",
+                  "startMs": 7384,
+                  "endMs": 7511
+                },
+                {
+                  "word": "are",
+                  "startMs": 7581,
+                  "endMs": 7697
+                },
+                {
+                  "word": "just",
+                  "startMs": 7732,
+                  "endMs": 7895
+                },
+                {
+                  "word": "counting",
+                  "startMs": 7964,
+                  "endMs": 8405
+                },
+                {
+                  "word": "how",
+                  "startMs": 8475,
+                  "endMs": 8603
+                },
+                {
+                  "word": "many",
+                  "startMs": 8672,
+                  "endMs": 8870
+                },
+                {
+                  "word": "of",
+                  "startMs": 8928,
+                  "endMs": 8986
+                },
+                {
+                  "word": "those",
+                  "startMs": 9032,
+                  "endMs": 9218
+                },
+                {
+                  "word": "same-sized",
+                  "startMs": 9253,
+                  "endMs": 9915
+                },
+                {
+                  "word": "pieces",
+                  "startMs": 9961,
+                  "endMs": 10309
+                },
+                {
+                  "word": "you",
+                  "startMs": 10356,
+                  "endMs": 10449
+                },
+                {
+                  "word": "have",
+                  "startMs": 10530,
+                  "endMs": 10785
+                },
+                {
+                  "word": "altogether.",
+                  "startMs": 10820,
+                  "endMs": 11656
+                }
+              ],
+              "narration": "When you add fractions with the same denominator, the bottom number stays the same because the size of each piece never changes. You are just counting how many of those same-sized pieces you have altogether.",
+              "caption": "Same denominator means same piece size.",
+              "imagePrompt": "A rectangular chocolate bar broken into eight equal pieces on a wooden table, with three pieces on the left side and four pieces on the right side, all clearly the same size",
+              "kenBurns": "pan-left"
+            },
+            {
+              "narrationWords": [
+                {
+                  "word": "To",
+                  "startMs": 0,
+                  "endMs": 104
+                },
+                {
+                  "word": "find",
+                  "startMs": 163,
+                  "endMs": 372
+                },
+                {
+                  "word": "the",
+                  "startMs": 418,
+                  "endMs": 488
+                },
+                {
+                  "word": "sum,",
+                  "startMs": 534,
+                  "endMs": 1080
+                },
+                {
+                  "word": "add",
+                  "startMs": 1289,
+                  "endMs": 1533
+                },
+                {
+                  "word": "only",
+                  "startMs": 1626,
+                  "endMs": 1904
+                },
+                {
+                  "word": "the",
+                  "startMs": 1962,
+                  "endMs": 2032
+                },
+                {
+                  "word": "top",
+                  "startMs": 2078,
+                  "endMs": 2311
+                },
+                {
+                  "word": "numbers",
+                  "startMs": 2380,
+                  "endMs": 2671
+                },
+                {
+                  "word": "together",
+                  "startMs": 2717,
+                  "endMs": 3077
+                },
+                {
+                  "word": "and",
+                  "startMs": 3135,
+                  "endMs": 3216
+                },
+                {
+                  "word": "keep",
+                  "startMs": 3274,
+                  "endMs": 3448
+                },
+                {
+                  "word": "the",
+                  "startMs": 3495,
+                  "endMs": 3565
+                },
+                {
+                  "word": "bottom",
+                  "startMs": 3611,
+                  "endMs": 3890
+                },
+                {
+                  "word": "number",
+                  "startMs": 3936,
+                  "endMs": 4191
+                },
+                {
+                  "word": "exactly",
+                  "startMs": 4261,
+                  "endMs": 4737
+                },
+                {
+                  "word": "as",
+                  "startMs": 4795,
+                  "endMs": 4911
+                },
+                {
+                  "word": "it",
+                  "startMs": 4969,
+                  "endMs": 5039
+                },
+                {
+                  "word": "is.",
+                  "startMs": 5097,
+                  "endMs": 5457
+                },
+                {
+                  "word": "So",
+                  "startMs": 5631,
+                  "endMs": 5828
+                },
+                {
+                  "word": "three",
+                  "startMs": 5898,
+                  "endMs": 6154
+                },
+                {
+                  "word": "eighths",
+                  "startMs": 6212,
+                  "endMs": 6525
+                },
+                {
+                  "word": "plus",
+                  "startMs": 6595,
+                  "endMs": 6850
+                },
+                {
+                  "word": "four",
+                  "startMs": 6931,
+                  "endMs": 7187
+                },
+                {
+                  "word": "eighths",
+                  "startMs": 7256,
+                  "endMs": 7547
+                },
+                {
+                  "word": "means",
+                  "startMs": 7628,
+                  "endMs": 7883
+                },
+                {
+                  "word": "you",
+                  "startMs": 7930,
+                  "endMs": 8011
+                },
+                {
+                  "word": "add",
+                  "startMs": 8092,
+                  "endMs": 8278
+                },
+                {
+                  "word": "three",
+                  "startMs": 8325,
+                  "endMs": 8557
+                },
+                {
+                  "word": "and",
+                  "startMs": 8592,
+                  "endMs": 8661
+                },
+                {
+                  "word": "four",
+                  "startMs": 8731,
+                  "endMs": 8963
+                },
+                {
+                  "word": "to",
+                  "startMs": 9010,
+                  "endMs": 9056
+                },
+                {
+                  "word": "get",
+                  "startMs": 9102,
+                  "endMs": 9253
+                },
+                {
+                  "word": "seven,",
+                  "startMs": 9323,
+                  "endMs": 9799
+                },
+                {
+                  "word": "and",
+                  "startMs": 10008,
+                  "endMs": 10147
+                },
+                {
+                  "word": "the",
+                  "startMs": 10194,
+                  "endMs": 10263
+                },
+                {
+                  "word": "denominator",
+                  "startMs": 10310,
+                  "endMs": 10914
+                },
+                {
+                  "word": "stays",
+                  "startMs": 10948,
+                  "endMs": 11239
+                },
+                {
+                  "word": "eight.",
+                  "startMs": 11308,
+                  "endMs": 11842
+                }
+              ],
+              "narration": "To find the sum, add only the top numbers together and keep the bottom number exactly as it is. So three eighths plus four eighths means you add three and four to get seven, and the denominator stays eight.",
+              "caption": "Add the tops, keep the bottom.",
+              "imagePrompt": "A friendly child's hands pushing together two small groups of identical orange wedges on a kitchen counter, three wedges sliding toward four wedges to form one combined group",
+              "kenBurns": "pan-right"
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "id": "q2",
+        "prompt": "3/8 + 4/8 = ? Drag to show the sum on the number line.",
+        "explanation": "Add the numerators: 3 + 4 = 7, keeping the denominator 8, so the sum is 7/8 — which is 87.5% of the way from 0 to 1.",
+        "type": "slider",
+        "config": {
+          "min": 0,
+          "max": 100,
+          "step": 12,
+          "unit": "%"
+        },
+        "answerKey": {
+          "mode": "numeric-tolerance",
+          "value": 84,
+          "tolerance": 6
+        }
+      }
+    },
+    {
+      "lessons": [
+        {
+          "slides": [
+            {
+              "narrationWords": [
+                {
+                  "word": "Every",
+                  "startMs": 0,
+                  "endMs": 348
+                },
+                {
+                  "word": "animal",
+                  "startMs": 441,
+                  "endMs": 836
+                },
+                {
+                  "word": "on",
+                  "startMs": 906,
+                  "endMs": 1022
+                },
+                {
+                  "word": "Earth",
+                  "startMs": 1080,
+                  "endMs": 1347
+                },
+                {
+                  "word": "lives",
+                  "startMs": 1440,
+                  "endMs": 1707
+                },
+                {
+                  "word": "in",
+                  "startMs": 1753,
+                  "endMs": 1823
+                },
+                {
+                  "word": "a",
+                  "startMs": 1870,
+                  "endMs": 1893
+                },
+                {
+                  "word": "habitat",
+                  "startMs": 1951,
+                  "endMs": 2450
+                },
+                {
+                  "word": "that",
+                  "startMs": 2496,
+                  "endMs": 2624
+                },
+                {
+                  "word": "gives",
+                  "startMs": 2682,
+                  "endMs": 2891
+                },
+                {
+                  "word": "it",
+                  "startMs": 2938,
+                  "endMs": 3007
+                },
+                {
+                  "word": "exactly",
+                  "startMs": 3054,
+                  "endMs": 3623
+                },
+                {
+                  "word": "what",
+                  "startMs": 3669,
+                  "endMs": 3808
+                },
+                {
+                  "word": "its",
+                  "startMs": 3843,
+                  "endMs": 3971
+                },
+                {
+                  "word": "body",
+                  "startMs": 4029,
+                  "endMs": 4342
+                },
+                {
+                  "word": "needs",
+                  "startMs": 4424,
+                  "endMs": 4749
+                },
+                {
+                  "word": "to",
+                  "startMs": 4795,
+                  "endMs": 4877
+                },
+                {
+                  "word": "survive.",
+                  "startMs": 4946,
+                  "endMs": 5654
+                },
+                {
+                  "word": "No",
+                  "startMs": 5979,
+                  "endMs": 6084
+                },
+                {
+                  "word": "matter",
+                  "startMs": 6130,
+                  "endMs": 6339
+                },
+                {
+                  "word": "how",
+                  "startMs": 6397,
+                  "endMs": 6513
+                },
+                {
+                  "word": "different",
+                  "startMs": 6606,
+                  "endMs": 6943
+                },
+                {
+                  "word": "animals",
+                  "startMs": 7001,
+                  "endMs": 7326
+                },
+                {
+                  "word": "look,",
+                  "startMs": 7372,
+                  "endMs": 7628
+                },
+                {
+                  "word": "they",
+                  "startMs": 7663,
+                  "endMs": 7802
+                },
+                {
+                  "word": "all",
+                  "startMs": 7872,
+                  "endMs": 8034
+                },
+                {
+                  "word": "depend",
+                  "startMs": 8080,
+                  "endMs": 8394
+                },
+                {
+                  "word": "on",
+                  "startMs": 8440,
+                  "endMs": 8510
+                },
+                {
+                  "word": "the",
+                  "startMs": 8545,
+                  "endMs": 8615
+                },
+                {
+                  "word": "same",
+                  "startMs": 8661,
+                  "endMs": 8998
+                },
+                {
+                  "word": "four",
+                  "startMs": 9067,
+                  "endMs": 9300
+                },
+                {
+                  "word": "basic",
+                  "startMs": 9369,
+                  "endMs": 9764
+                },
+                {
+                  "word": "needs",
+                  "startMs": 9834,
+                  "endMs": 10159
+                },
+                {
+                  "word": "from",
+                  "startMs": 10205,
+                  "endMs": 10368
+                },
+                {
+                  "word": "their",
+                  "startMs": 10414,
+                  "endMs": 10577
+                },
+                {
+                  "word": "home.",
+                  "startMs": 10635,
+                  "endMs": 11146
+                }
+              ],
+              "narration": "Every animal on Earth lives in a habitat that gives it exactly what its body needs to survive. No matter how different animals look, they all depend on the same four basic needs from their home.",
+              "caption": "Every habitat meets the same four needs.",
+              "imagePrompt": "A split scene showing four animals in their natural homes: a polar bear on Arctic ice, a parrot in a rainforest canopy, a camel in a sandy desert, and a frog beside a forest pond, each looking healthy and at ease in its environment.",
               "kenBurns": "zoom-in"
             },
             {
-              "narration": "The cactus wren makes its nest tucked safely inside a spiky saguaro cactus, where the sharp needles keep predators away. A good habitat must supply food, water, shelter, and enough space for an animal to live and grow — and you are about to figure out which of those things every habitat truly must provide.",
-              "caption": "Every habitat must provide key needs.",
-              "imagePrompt": "A small brown-speckled cactus wren perched at the opening of a cozy nest woven deep inside a tall saguaro cactus, surrounded by a warm sunny desert landscape with sandy ground and distant rocky hills.",
+              "narrationWords": [
+                {
+                  "word": "A",
+                  "startMs": 0,
+                  "endMs": 70
+                },
+                {
+                  "word": "habitat",
+                  "startMs": 151,
+                  "endMs": 580
+                },
+                {
+                  "word": "must",
+                  "startMs": 639,
+                  "endMs": 778
+                },
+                {
+                  "word": "provide",
+                  "startMs": 813,
+                  "endMs": 1208
+                },
+                {
+                  "word": "food",
+                  "startMs": 1254,
+                  "endMs": 1533
+                },
+                {
+                  "word": "to",
+                  "startMs": 1579,
+                  "endMs": 1637
+                },
+                {
+                  "word": "fuel",
+                  "startMs": 1718,
+                  "endMs": 1997
+                },
+                {
+                  "word": "the",
+                  "startMs": 2055,
+                  "endMs": 2125
+                },
+                {
+                  "word": "animal's",
+                  "startMs": 2194,
+                  "endMs": 2508
+                },
+                {
+                  "word": "body,",
+                  "startMs": 2566,
+                  "endMs": 3042
+                },
+                {
+                  "word": "fresh",
+                  "startMs": 3286,
+                  "endMs": 3541
+                },
+                {
+                  "word": "water",
+                  "startMs": 3611,
+                  "endMs": 3901
+                },
+                {
+                  "word": "to",
+                  "startMs": 3959,
+                  "endMs": 4017
+                },
+                {
+                  "word": "drink,",
+                  "startMs": 4075,
+                  "endMs": 4528
+                },
+                {
+                  "word": "shelter",
+                  "startMs": 4737,
+                  "endMs": 5109
+                },
+                {
+                  "word": "to",
+                  "startMs": 5167,
+                  "endMs": 5225
+                },
+                {
+                  "word": "stay",
+                  "startMs": 5283,
+                  "endMs": 5492
+                },
+                {
+                  "word": "safe",
+                  "startMs": 5573,
+                  "endMs": 5852
+                },
+                {
+                  "word": "from",
+                  "startMs": 5886,
+                  "endMs": 6026
+                },
+                {
+                  "word": "weather",
+                  "startMs": 6095,
+                  "endMs": 6362
+                },
+                {
+                  "word": "and",
+                  "startMs": 6409,
+                  "endMs": 6479
+                },
+                {
+                  "word": "predators,",
+                  "startMs": 6525,
+                  "endMs": 7175
+                },
+                {
+                  "word": "and",
+                  "startMs": 7419,
+                  "endMs": 7570
+                },
+                {
+                  "word": "enough",
+                  "startMs": 7628,
+                  "endMs": 7837
+                },
+                {
+                  "word": "space",
+                  "startMs": 7872,
+                  "endMs": 8197
+                },
+                {
+                  "word": "to",
+                  "startMs": 8232,
+                  "endMs": 8301
+                },
+                {
+                  "word": "move",
+                  "startMs": 8394,
+                  "endMs": 8719
+                },
+                {
+                  "word": "and",
+                  "startMs": 8766,
+                  "endMs": 8859
+                },
+                {
+                  "word": "live.",
+                  "startMs": 8928,
+                  "endMs": 9497
+                },
+                {
+                  "word": "When",
+                  "startMs": 10101,
+                  "endMs": 10287
+                },
+                {
+                  "word": "a",
+                  "startMs": 10321,
+                  "endMs": 10345
+                },
+                {
+                  "word": "habitat",
+                  "startMs": 10403,
+                  "endMs": 10855
+                },
+                {
+                  "word": "checks",
+                  "startMs": 10902,
+                  "endMs": 11169
+                },
+                {
+                  "word": "all",
+                  "startMs": 11215,
+                  "endMs": 11390
+                },
+                {
+                  "word": "four",
+                  "startMs": 11471,
+                  "endMs": 11703
+                },
+                {
+                  "word": "of",
+                  "startMs": 11749,
+                  "endMs": 11796
+                },
+                {
+                  "word": "those",
+                  "startMs": 11842,
+                  "endMs": 12051
+                },
+                {
+                  "word": "boxes,",
+                  "startMs": 12098,
+                  "endMs": 12678
+                },
+                {
+                  "word": "an",
+                  "startMs": 12887,
+                  "endMs": 13027
+                },
+                {
+                  "word": "animal",
+                  "startMs": 13085,
+                  "endMs": 13386
+                },
+                {
+                  "word": "can",
+                  "startMs": 13445,
+                  "endMs": 13572
+                },
+                {
+                  "word": "truly",
+                  "startMs": 13619,
+                  "endMs": 13944
+                },
+                {
+                  "word": "thrive",
+                  "startMs": 13990,
+                  "endMs": 14420
+                },
+                {
+                  "word": "there.",
+                  "startMs": 14466,
+                  "endMs": 15000
+                }
+              ],
+              "narration": "A habitat must provide food to fuel the animal's body, fresh water to drink, shelter to stay safe from weather and predators, and enough space to move and live. When a habitat checks all four of those boxes, an animal can truly thrive there.",
+              "caption": "Food, water, shelter, and space.",
+              "imagePrompt": "A beaver near its dome-shaped lodge in a calm woodland pond, surrounded by leafy branches it has gathered, clear water all around, and open forest stretching behind it under a bright afternoon sky.",
               "kenBurns": "zoom-out"
             }
           ]
@@ -108,22 +1305,22 @@
       ],
       "quiz": {
         "id": "q3",
-        "prompt": "A cactus wren nests inside a cactus in the desert. What must that desert habitat provide for the wren to survive?",
-        "explanation": "Every habitat must supply food, water, shelter, and space. Sunlight helps plants grow but is not itself one of the four things a habitat must directly provide to an animal.",
+        "prompt": "A wolf pack lives in a forest. Which of these does that habitat MUST supply for the wolves to survive?",
+        "explanation": "A habitat has to supply shelter, food and water — the den is shelter, the prey is food, the streams are water. Warm sunshine every day is not something a forest must provide: wolves live right through grey winters.",
         "type": "multi",
         "config": {
           "options": [
-            "Food",
-            "Sunlight",
-            "Shelter",
-            "Water"
+            "A place to den and raise pups",
+            "Prey animals to hunt",
+            "Warm sunshine every single day",
+            "Streams or lakes for drinking water"
           ]
         },
         "answerKey": {
           "mode": "index-set",
           "correctIndices": [
             0,
-            2,
+            1,
             3
           ]
         }
@@ -134,15 +1331,459 @@
         {
           "slides": [
             {
-              "narration": "Water is always on the move, traveling through the same steps over and over again in a never-ending loop. It starts as liquid water, rises into the sky, falls back down, and collects again — ready to begin the journey all over.",
-              "caption": "Water keeps cycling, again and again",
-              "imagePrompt": "A peaceful lake surrounded by green hills under a bright sun, with wispy lines of mist rising from the water's surface up toward fluffy clouds, rain falling from the clouds onto the hills, and streams trickling back down into the lake, all shown in a continuous circular scene",
+              "narrationWords": [
+                {
+                  "word": "Water",
+                  "startMs": 0,
+                  "endMs": 348
+                },
+                {
+                  "word": "is",
+                  "startMs": 418,
+                  "endMs": 511
+                },
+                {
+                  "word": "always",
+                  "startMs": 569,
+                  "endMs": 917
+                },
+                {
+                  "word": "on",
+                  "startMs": 975,
+                  "endMs": 1057
+                },
+                {
+                  "word": "the",
+                  "startMs": 1103,
+                  "endMs": 1185
+                },
+                {
+                  "word": "move,",
+                  "startMs": 1231,
+                  "endMs": 1719
+                },
+                {
+                  "word": "traveling",
+                  "startMs": 1928,
+                  "endMs": 2415
+                },
+                {
+                  "word": "through",
+                  "startMs": 2450,
+                  "endMs": 2624
+                },
+                {
+                  "word": "the",
+                  "startMs": 2659,
+                  "endMs": 2729
+                },
+                {
+                  "word": "same",
+                  "startMs": 2775,
+                  "endMs": 3065
+                },
+                {
+                  "word": "loop",
+                  "startMs": 3112,
+                  "endMs": 3344
+                },
+                {
+                  "word": "over",
+                  "startMs": 3425,
+                  "endMs": 3832
+                },
+                {
+                  "word": "and",
+                  "startMs": 3913,
+                  "endMs": 4029
+                },
+                {
+                  "word": "over",
+                  "startMs": 4099,
+                  "endMs": 4331
+                },
+                {
+                  "word": "again.",
+                  "startMs": 4389,
+                  "endMs": 4888
+                },
+                {
+                  "word": "It",
+                  "startMs": 5492,
+                  "endMs": 5643
+                },
+                {
+                  "word": "starts",
+                  "startMs": 5701,
+                  "endMs": 6038
+                },
+                {
+                  "word": "as",
+                  "startMs": 6073,
+                  "endMs": 6177
+                },
+                {
+                  "word": "liquid",
+                  "startMs": 6259,
+                  "endMs": 6595
+                },
+                {
+                  "word": "water",
+                  "startMs": 6653,
+                  "endMs": 6944
+                },
+                {
+                  "word": "on",
+                  "startMs": 7002,
+                  "endMs": 7095
+                },
+                {
+                  "word": "Earth's",
+                  "startMs": 7164,
+                  "endMs": 7454
+                },
+                {
+                  "word": "surface,",
+                  "startMs": 7478,
+                  "endMs": 8070
+                },
+                {
+                  "word": "and",
+                  "startMs": 8244,
+                  "endMs": 8383
+                },
+                {
+                  "word": "the",
+                  "startMs": 8418,
+                  "endMs": 8488
+                },
+                {
+                  "word": "sun's",
+                  "startMs": 8534,
+                  "endMs": 8848
+                },
+                {
+                  "word": "heat",
+                  "startMs": 8906,
+                  "endMs": 9080
+                },
+                {
+                  "word": "turns",
+                  "startMs": 9126,
+                  "endMs": 9405
+                },
+                {
+                  "word": "it",
+                  "startMs": 9451,
+                  "endMs": 9521
+                },
+                {
+                  "word": "into",
+                  "startMs": 9567,
+                  "endMs": 9753
+                },
+                {
+                  "word": "invisible",
+                  "startMs": 9846,
+                  "endMs": 10299
+                },
+                {
+                  "word": "vapor",
+                  "startMs": 10345,
+                  "endMs": 10647
+                },
+                {
+                  "word": "that",
+                  "startMs": 10705,
+                  "endMs": 10833
+                },
+                {
+                  "word": "floats",
+                  "startMs": 10868,
+                  "endMs": 11158
+                },
+                {
+                  "word": "up",
+                  "startMs": 11216,
+                  "endMs": 11309
+                },
+                {
+                  "word": "into",
+                  "startMs": 11379,
+                  "endMs": 11541
+                },
+                {
+                  "word": "the",
+                  "startMs": 11611,
+                  "endMs": 11680
+                },
+                {
+                  "word": "sky",
+                  "startMs": 11715,
+                  "endMs": 12122
+                },
+                {
+                  "word": "—",
+                  "startMs": 12296,
+                  "endMs": 12389
+                },
+                {
+                  "word": "that's",
+                  "startMs": 12598,
+                  "endMs": 12853
+                },
+                {
+                  "word": "called",
+                  "startMs": 12911,
+                  "endMs": 13306
+                },
+                {
+                  "word": "evaporation.",
+                  "startMs": 13422,
+                  "endMs": 14583
+                }
+              ],
+              "narration": "Water is always on the move, traveling through the same loop over and over again. It starts as liquid water on Earth's surface, and the sun's heat turns it into invisible vapor that floats up into the sky — that's called evaporation.",
+              "caption": "The sun lifts water into the sky.",
+              "imagePrompt": "A bright sun shining over a calm lake surrounded by green hills, with faint wispy steam rising gently off the water surface into a blue sky",
               "kenBurns": "pan-left"
             },
             {
-              "narration": "First, the sun warms the lake and water evaporates, turning into invisible vapor that floats up into the cool air where it condenses into clouds. Then the clouds grow heavy and release precipitation — rain or snow — that falls and collects in lakes, rivers, and the ground, starting the whole cycle again.",
-              "caption": "Four steps, one endless loop",
-              "imagePrompt": "A wide landscape showing a sunny lake on one side with steam rising upward, thick white clouds forming in the middle sky, raindrops falling onto forested hills, and a river flowing back toward the lake, all connected in one sweeping circular flow of nature",
+              "narrationWords": [
+                {
+                  "word": "High",
+                  "startMs": 0,
+                  "endMs": 290
+                },
+                {
+                  "word": "in",
+                  "startMs": 325,
+                  "endMs": 395
+                },
+                {
+                  "word": "the",
+                  "startMs": 430,
+                  "endMs": 499
+                },
+                {
+                  "word": "sky,",
+                  "startMs": 534,
+                  "endMs": 1103
+                },
+                {
+                  "word": "that",
+                  "startMs": 1312,
+                  "endMs": 1486
+                },
+                {
+                  "word": "water",
+                  "startMs": 1556,
+                  "endMs": 1846
+                },
+                {
+                  "word": "vapor",
+                  "startMs": 1893,
+                  "endMs": 2160
+                },
+                {
+                  "word": "cools",
+                  "startMs": 2229,
+                  "endMs": 2624
+                },
+                {
+                  "word": "down",
+                  "startMs": 2694,
+                  "endMs": 3054
+                },
+                {
+                  "word": "and",
+                  "startMs": 3100,
+                  "endMs": 3193
+                },
+                {
+                  "word": "bunches",
+                  "startMs": 3274,
+                  "endMs": 3623
+                },
+                {
+                  "word": "together",
+                  "startMs": 3669,
+                  "endMs": 4017
+                },
+                {
+                  "word": "into",
+                  "startMs": 4064,
+                  "endMs": 4191
+                },
+                {
+                  "word": "clouds",
+                  "startMs": 4261,
+                  "endMs": 4784
+                },
+                {
+                  "word": "—",
+                  "startMs": 4900,
+                  "endMs": 4958
+                },
+                {
+                  "word": "that's",
+                  "startMs": 5202,
+                  "endMs": 5411
+                },
+                {
+                  "word": "condensation.",
+                  "startMs": 5457,
+                  "endMs": 6363
+                },
+                {
+                  "word": "Then",
+                  "startMs": 6967,
+                  "endMs": 7152
+                },
+                {
+                  "word": "the",
+                  "startMs": 7199,
+                  "endMs": 7268
+                },
+                {
+                  "word": "water",
+                  "startMs": 7315,
+                  "endMs": 7605
+                },
+                {
+                  "word": "falls",
+                  "startMs": 7663,
+                  "endMs": 7942
+                },
+                {
+                  "word": "back",
+                  "startMs": 8000,
+                  "endMs": 8186
+                },
+                {
+                  "word": "to",
+                  "startMs": 8244,
+                  "endMs": 8325
+                },
+                {
+                  "word": "Earth",
+                  "startMs": 8441,
+                  "endMs": 8685
+                },
+                {
+                  "word": "as",
+                  "startMs": 8755,
+                  "endMs": 8859
+                },
+                {
+                  "word": "rain",
+                  "startMs": 8940,
+                  "endMs": 9184
+                },
+                {
+                  "word": "or",
+                  "startMs": 9242,
+                  "endMs": 9323
+                },
+                {
+                  "word": "snow,",
+                  "startMs": 9381,
+                  "endMs": 9869
+                },
+                {
+                  "word": "which",
+                  "startMs": 9962,
+                  "endMs": 10159
+                },
+                {
+                  "word": "we",
+                  "startMs": 10194,
+                  "endMs": 10299
+                },
+                {
+                  "word": "call",
+                  "startMs": 10357,
+                  "endMs": 10577
+                },
+                {
+                  "word": "precipitation,",
+                  "startMs": 10647,
+                  "endMs": 11553
+                },
+                {
+                  "word": "and",
+                  "startMs": 11761,
+                  "endMs": 11901
+                },
+                {
+                  "word": "it",
+                  "startMs": 11959,
+                  "endMs": 12017
+                },
+                {
+                  "word": "collects",
+                  "startMs": 12063,
+                  "endMs": 12446
+                },
+                {
+                  "word": "in",
+                  "startMs": 12493,
+                  "endMs": 12574
+                },
+                {
+                  "word": "rivers",
+                  "startMs": 12655,
+                  "endMs": 12992
+                },
+                {
+                  "word": "and",
+                  "startMs": 13039,
+                  "endMs": 13131
+                },
+                {
+                  "word": "lakes",
+                  "startMs": 13213,
+                  "endMs": 13549
+                },
+                {
+                  "word": "so",
+                  "startMs": 13758,
+                  "endMs": 13898
+                },
+                {
+                  "word": "the",
+                  "startMs": 13956,
+                  "endMs": 14025
+                },
+                {
+                  "word": "whole",
+                  "startMs": 14072,
+                  "endMs": 14316
+                },
+                {
+                  "word": "journey",
+                  "startMs": 14374,
+                  "endMs": 14687
+                },
+                {
+                  "word": "can",
+                  "startMs": 14745,
+                  "endMs": 14861
+                },
+                {
+                  "word": "begin",
+                  "startMs": 14919,
+                  "endMs": 15163
+                },
+                {
+                  "word": "again.",
+                  "startMs": 15210,
+                  "endMs": 15837
+                }
+              ],
+              "narration": "High in the sky, that water vapor cools down and bunches together into clouds — that's condensation. Then the water falls back to Earth as rain or snow, which we call precipitation, and it collects in rivers and lakes so the whole journey can begin again.",
+              "caption": "Clouds form, rain falls, water collects.",
+              "imagePrompt": "A dramatic landscape showing thick grey clouds overhead with rain pouring down onto a river winding through a valley, feeding into a wide lake at the bottom of rolling green hills",
               "kenBurns": "pan-right"
             }
           ]
@@ -150,24 +1791,24 @@
       ],
       "quiz": {
         "id": "q4",
-        "prompt": "A lake sits under the afternoon sun. Arrange the four steps that follow in the order they happen.",
-        "explanation": "Starting from the lake, heat turns liquid water into water vapor (evaporation), the vapor rises and cools to form clouds (condensation), water falls as rain or snow (precipitation), and then collects again in rivers and lakes — ready to repeat the cycle.",
+        "prompt": "A puddle sits in the sun on a warm afternoon. What happens to that water as it moves through the water cycle?",
+        "explanation": "The puddle's water evaporates into vapour, which condenses into clouds, then falls as precipitation, and finally collects on the ground — ready to start the cycle again.",
         "type": "order",
         "config": {
           "items": [
-            "Liquid water collects in rivers and lakes",
-            "Liquid water turns into water vapor",
-            "Rain or snow falls to the ground",
-            "Water vapor rises and cools into clouds"
+            "Evaporation",
+            "Collection",
+            "Condensation",
+            "Precipitation"
           ]
         },
         "answerKey": {
           "mode": "exact-order",
           "correctOrder": [
-            1,
-            3,
+            0,
             2,
-            0
+            3,
+            1
           ]
         }
       }

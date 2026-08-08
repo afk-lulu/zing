@@ -13,11 +13,29 @@ export type QuestionType = 'slider' | 'single' | 'multi' | 'order';
 
 export type KenBurns = 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right';
 
+/**
+ * One karaoke token, timed against this slide's own clip. `word` is the display
+ * token including any punctuation that trails it, so joining the array with
+ * single spaces reproduces the narration — there are no punctuation-only
+ * tokens. Times are milliseconds from the start of the clip, non-decreasing.
+ */
+export interface NarrationWord {
+  word: string;
+  startMs: number;
+  endMs: number;
+}
+
 export interface Slide {
   /** Absent when fal failed or the batch came from the offline fallback. */
   imageUrl?: string;
   /** Absent when ElevenLabs failed — the slide plays silent with its caption. */
   audioUrl?: string;
+  /**
+   * Absent whenever timings could not be obtained — never an error. Render the
+   * narration statically in that case; word-by-word highlighting is a bonus,
+   * not a requirement.
+   */
+  narrationWords?: NarrationWord[];
   narration: string;
   caption: string;
   imagePrompt: string;

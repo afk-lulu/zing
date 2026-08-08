@@ -96,6 +96,8 @@ async function main() {
   console.log(`  slides:    ${slides.length}`);
   console.log(`  images:    ${slides.filter((s) => s.imageUrl).length}/${slides.length}`);
   console.log(`  audio:     ${slides.filter((s) => s.audioUrl).length}/${slides.length}`);
+  // Optional by contract (ARCH §3) — a shortfall here is a degrade, not a failure.
+  console.log(`  timings:   ${slides.filter((s) => s.narrationWords?.length).length}/${slides.length}`);
 
   const outPath = `batch-${withAssets.difficulty}.json`;
   await writeFile(outPath, JSON.stringify(withAssets, null, 2));
@@ -115,7 +117,7 @@ interface BatchLike {
   subjects: string[];
   difficulty: string;
   groups: {
-    lessons: { slides: { imageUrl?: string; audioUrl?: string }[] }[];
+    lessons: { slides: { imageUrl?: string; audioUrl?: string; narrationWords?: unknown[] }[] }[];
     quiz: { type: string };
   }[];
 }

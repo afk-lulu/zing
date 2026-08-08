@@ -42,7 +42,7 @@ The app is the Orchestrator's hands: it calls stages sequentially, passes output
 3. **Encourager** (1 small call, in the same `Promise.all`): three ScoreCard messages keyed to score bands (`high ≥80% · mid ≥50% · low`), growth-mindset, kid-addressed.
 Route Zod-validates the assembled **Batch Spec**; malformed questions dropped; <3 valid questions → error → client falls back.
 
-**S4 `/api/assets`** (fan-out `Promise.all`, bounded to 4 in flight per provider with one jittered retry on 429/5xx — the first real run lost 3 of 24 assets to provider rate limits, and throttling made the stage *faster*): fal Flux **schnell** `image_size:{width:720,height:1280}` with style-lock prefix ("flat, colorful children's textbook illustration, friendly, no text") ~2–4s each ‖ ElevenLabs `eleven_flash_v2_5`, one fixed teacher voice, mp3 per slide. ElevenLabs returns bytes → hosted so the app receives plain URLs, three tiers: Vercel Blob when a token is set (the only one that survives a cold start) · else an in-process store served from `GET /api/audio/<id>` at the request's own host, which is enough for `next dev` · else base64 data-URIs inline, the POC last resort iOS may refuse to play. Returns the Batch Spec with `imageUrl`/`audioUrl` filled.
+**S4 `/api/assets`** (fan-out `Promise.all`, bounded to 4 in flight per provider with one jittered retry on 429/5xx — the first real run lost 3 of 24 assets to provider rate limits, and throttling made the stage *faster*): fal Flux **schnell** `image_size:{width:720,height:1280}` with the prose style-lock prefix in `lib/fal.ts` (painterly airbrushed science-textbook illustration — saturated colour, soft graded shading, clean sky-blue ground — closing on the hard no-text/no-label/no-border rail) ~2–4s each; a `has_nsfw_concepts` hit is treated as a failed image and re-rolled, because the safety checker returns a black rectangle with a 200 rather than an error ‖ ElevenLabs `eleven_flash_v2_5`, one fixed teacher voice, mp3 per slide — via `POST /v1/text-to-speech/<voice>/with-timestamps`, which returns base64 audio plus a character-level `alignment` we fold into whole words for `narrationWords` (§3). Only the envelope differs; same model, same voice. Anything wrong with it — non-200, rate limit, alignment that will not parse — falls straight back to the plain bytes endpoint and the slide ships without `narrationWords`, because the karaoke overlay is optional and the clip is not. ElevenLabs returns bytes → hosted so the app receives plain URLs, three tiers: Vercel Blob when a token is set (the only one that survives a cold start) · else an in-process store served from `GET /api/audio/<id>` at the request's own host, which is enough for `next dev` · else base64 data-URIs inline, the POC last resort iOS may refuse to play. Returns the Batch Spec with `imageUrl`/`audioUrl` filled.
 
 **Latency budget (batch starts <45s):** S1 ~8s · S2 ~15s · S3 ~12s (waves 2–3 parallel) · S4 ~10–15s (fully parallel). `maxDuration = 120` on research/compose/assets.
 
@@ -59,6 +59,9 @@ Route Zod-validates the assembled **Batch Spec**; malformed questions dropped; <
     { "lessons": [
         { "slides": [
             { "imageUrl": "...", "audioUrl": "...",   // filled by S4
+              "narrationWords": [                     // filled by S4; absent if no timings
+                { "word": "Eight", "startMs": 0,   "endMs": 267 },
+                { "word": "equal", "startMs": 337, "endMs": 639 }],
               "narration": "Eight equal slices make one whole pizza — eight eighths.",
               "caption": "A pizza cut into 8 equal slices",
               "imagePrompt": "A cheerful pizza on a board, cut into eight even wedges",
@@ -78,12 +81,16 @@ Route Zod-validates the assembled **Batch Spec**; malformed questions dropped; <
 
 `narration` and `imagePrompt` are the writers' raw output and stay in the spec after S4 has consumed them: `narration` is what the player times a clip-less slide by, and `imagePrompt` is what makes a failed image re-runnable. `slider` `config.step` defaults to 1.
 
+`narrationWords` is the karaoke track: whitespace-delimited display tokens with any trailing punctuation still attached (join with single spaces to get the narration back — no punctuation-only tokens), `startMs`/`endMs` integer milliseconds from the start of that slide's own clip, non-decreasing. It is **optional and its absence is never an error** — no clip, no timestamps, or an alignment that would not parse all mean the same thing to the app, which renders the narration statically instead of lighting it word by word.
+
 Per-type `config`/`answerKey`: `single` → `{options[]}`/`{correctIndex}` · `multi` → `{options[]}`/`{correctIndices[]}` (set) · `order` → `{items[]}`/`{correctOrder[]}` (exact). The app flattens `groups` into a page list: `[...slides, quizPage] × groups, scoreCardPage`. Grading is a ~40-line pure function client-side.
 
 ## 4. Batch Player (RN)
 
 - Vertical `FlatList`, `pagingEnabled`, full-screen pages; progress dots + mute persistent
-- **Lesson slide page:** prefetched `Image` (`Image.prefetch` on all URLs the moment S4 returns) under a slow scale/translate loop (Ken Burns) + caption; `expo-audio` (`playsInSilentMode: true`) plays the clip; clip end → auto-advance, and a slide whose clip is missing falls back to a read-length timer off its `narration` so the feed still moves; batch starts from a user tap (never autoplay — iPhone audio policy)
+- **Lesson slide page:** prefetched `Image` (`Image.prefetch` on all URLs the moment S4 returns) under a slow scale/translate loop (Ken Burns); `expo-audio` (`playsInSilentMode: true`) plays the clip; clip end → auto-advance, and a slide whose clip is missing falls back to a read-length timer off its `narration` so the feed still moves; batch starts from a user tap (never autoplay — iPhone audio policy)
+- **Karaoke narration:** the slide draws `narration` — the words actually being spoken, not the written `caption` — and lights each word as the voice reaches it, driven by `narrationWords` (§3) against the player position. A clip without timings renders the narration statically rather than guessing: a highlight drifting out of sync reads as broken, static text does not. `caption` remains the fallback string when a slide has no narration.
+- **2.5D parallax:** image, scrim and text sit on separate layers that move at different rates against device tilt (`expo-sensors`, smoothed and clamped) and against pager scroll, so the frame has depth and keeps moving between beats. Translation stays inside the Ken Burns overscan at every phase, or the image edge shows. One sensor subscription for the whole screen — eight slides are mounted at once — and every transform on the native driver.
 - **Quiz page:** audio pauses, `scrollEnabled=false`; bottom-anchored card renders the widget:
   `slider` — `@react-native-community/slider` (in Expo Go) + big live readout · `single`/`multi` — option rows (+ confirm for multi) · `order` — **tap-to-order**: tap in sequence, numbered badges, re-tap to undo (no drag libs)
 - Feedback: correct → mini confetti + chime; wrong → shake, highlight correct, explanation; then unlock scroll

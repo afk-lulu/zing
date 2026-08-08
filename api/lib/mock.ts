@@ -18,11 +18,14 @@
  *   · group 5 (slider) — answer outside [min, max]    → Zod `superRefine` catches it, group dropped
  *   · one fal call fails                              → slide keeps its caption over a tint
  *   · one ElevenLabs call fails                       → slide plays silent on the read-length timer
+ *   · one clip comes back without word timings        → slide renders its narration statically
  *
  * Injections are keyed to call index, so they must line up with the type the
  * Planner assigns that group — an injection in a branch the run never reaches
  * is a test that quietly proves nothing.
  */
+
+import type { NarrationWord } from './schema';
 
 export type MockMode = 'off' | 'clean' | 'chaos';
 
@@ -134,11 +137,13 @@ export function mockAgentResponse(agent: string, user: string): string {
 let quizCallIndex = 0;
 let imageCallIndex = 0;
 let audioCallIndex = 0;
+let wordsCallIndex = 0;
 
 export function resetMockCounters(): void {
   quizCallIndex = 0;
   imageCallIndex = 0;
   audioCallIndex = 0;
+  wordsCallIndex = 0;
 }
 
 function mockQuizResponse(topic: string, user: string, chaos: boolean): string {
@@ -216,6 +221,34 @@ export function mockAudioBytes(): Buffer {
     throw new Error('mock elevenlabs failure (ZING_MOCK=chaos)');
   }
   return Buffer.from([0xff, 0xfb, 0x90, 0x64, 0x00, 0x00, 0x00, 0x00]);
+}
+
+/**
+ * Karaoke timings for a mocked clip, so the player's word-by-word path can be
+ * built and demoed without spending a cent at ElevenLabs. Real timings come out
+ * of a character alignment; these come out of a synthetic cadence — a fixed
+ * per-word cost plus time proportional to length — which is wrong in detail but
+ * right in shape: same tokens as the narration, non-decreasing integer ms, and
+ * a total that reads at roughly speaking pace.
+ *
+ * Returns `undefined` where the field must be absent, which is the case the
+ * client's static-render path exists for.
+ */
+export function mockNarrationWords(text: string): NarrationWord[] | undefined {
+  // Chaos: the 1st clip comes back with audio but no timings.
+  if (mockMode() === 'chaos' && wordsCallIndex++ === 0) return undefined;
+
+  const tokens = text.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return undefined;
+
+  let cursor = 0;
+  return tokens.map((word) => {
+    const startMs = cursor;
+    const endMs = startMs + 90 + 55 * word.length;
+    // A beat between words, so the highlight has visible gaps like the real thing.
+    cursor = endMs + 40;
+    return { word, startMs, endMs };
+  });
 }
 
 /* ------------------------------------------------------------------ */

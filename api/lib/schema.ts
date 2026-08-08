@@ -225,6 +225,20 @@ function checkQuestion(
   if (q.type === 'single' && q.answerKey.correctIndex >= q.config.options.length) {
     ctx.addIssue({ code: 'custom', message: 'correctIndex out of range' });
   }
+  if (q.type === 'slider') {
+    // The widget only stops on multiples of `step`, so a key the steps cannot
+    // land on is unanswerable however well the child reasons — a dead end, and
+    // PRD §10 does not allow those. Require at least one reachable stop inside
+    // the tolerance band.
+    const { min, max, step } = q.config;
+    const { value, tolerance } = q.answerKey;
+    if (step > 0) {
+      const first = Math.ceil((value - tolerance - min) / step) * step + min;
+      if (first > Math.min(max, value + tolerance)) {
+        ctx.addIssue({ code: 'custom', message: 'no slider step falls inside the answer tolerance' });
+      }
+    }
+  }
   if (q.type === 'multi') {
     const n = q.config.options.length;
     if (q.answerKey.correctIndices.some((i) => i >= n)) {
@@ -232,6 +246,12 @@ function checkQuestion(
     }
     if (new Set(q.answerKey.correctIndices).size !== q.answerKey.correctIndices.length) {
       ctx.addIssue({ code: 'custom', message: 'correctIndices contains duplicates' });
+    }
+    // A multi-select where every option is correct grades "tap everything" as a
+    // perfect answer. It reads as a bug on screen and teaches nothing, so it is
+    // malformed — dropped like any other bad question rather than shipped.
+    if (new Set(q.answerKey.correctIndices).size >= n) {
+      ctx.addIssue({ code: 'custom', message: 'multi has no incorrect option' });
     }
   }
   if (q.type === 'order') {
@@ -290,15 +310,54 @@ export type Encouragement = z.infer<typeof Encouragement>;
  * The Batch Spec itself
  * ------------------------------------------------------------------ */
 
-export const Slide = z.object({
-  /** Filled by S4. Absent until then. */
-  imageUrl: z.string().optional(),
-  audioUrl: z.string().optional(),
-  narration: z.string().min(1),
-  caption: z.string().min(1),
-  imagePrompt: z.string().min(1),
-  kenBurns: KenBurns,
-});
+/**
+ * One karaoke token. `word` is the display token *including* whatever
+ * punctuation trails it, so joining the array with single spaces reproduces the
+ * narration closely enough to highlight against — there are no punctuation-only
+ * tokens. Times are milliseconds from the start of that slide's own clip.
+ */
+export const NarrationWord = z
+  .object({
+    word: z.string().min(1),
+    startMs: z.number().int().min(0),
+    endMs: z.number().int().min(0),
+  })
+  .superRefine((word, ctx) => {
+    if (word.endMs < word.startMs) {
+      ctx.addIssue({ code: 'custom', message: 'endMs must not precede startMs' });
+    }
+  });
+export type NarrationWord = z.infer<typeof NarrationWord>;
+
+export const Slide = z
+  .object({
+    /** Filled by S4. Absent until then. */
+    imageUrl: z.string().optional(),
+    audioUrl: z.string().optional(),
+    /**
+     * Filled by S4 from the ElevenLabs alignment. Absent whenever TTS failed or
+     * timings could not be obtained — never an error, the app just renders the
+     * narration statically instead of lighting it word by word.
+     */
+    narrationWords: z.array(NarrationWord).min(1).optional(),
+    narration: z.string().min(1),
+    caption: z.string().min(1),
+    imagePrompt: z.string().min(1),
+    kenBurns: KenBurns,
+  })
+  .superRefine((slide, ctx) => {
+    const words = slide.narrationWords;
+    if (!words) return;
+    for (let i = 1; i < words.length; i++) {
+      if (words[i].startMs < words[i - 1].endMs) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `narrationWords must be non-decreasing (word ${i} starts before word ${i - 1} ends)`,
+        });
+        return;
+      }
+    }
+  });
 export type Slide = z.infer<typeof Slide>;
 
 export const Lesson = z.object({

@@ -78,5 +78,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxOn: { borderColor: colors.accent, backgroundColor: colors.accent },
-  tick: { ...type.body, color: colors.text, fontWeight: '900' },
+  tick: { ...type.body, color: colors.onAccent, fontWeight: '900' },
 });

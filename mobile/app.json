@@ -13,7 +13,7 @@
     "android": {
       "package": "com.zing.app",
       "adaptiveIcon": {
-        "backgroundColor": "#0B0B14",
+        "backgroundColor": "#04070A",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

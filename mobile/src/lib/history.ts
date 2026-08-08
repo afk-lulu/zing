@@ -26,6 +26,13 @@ export interface HistoryEntry {
   total: number;
   perQuestion: HistoryQuestion[];
   timestamp: number;
+  /**
+   * One play-through. A question can now be skipped and answered later, so the
+   * player rewrites its row as the score changes; matching on this replaces
+   * that row instead of adding a second. Rows written before this existed have
+   * none, and fall back to the heuristic below.
+   */
+  playId?: string;
 }
 
 export async function loadHistory(): Promise<HistoryEntry[]> {
@@ -44,6 +51,7 @@ export async function loadHistory(): Promise<HistoryEntry[]> {
 export async function recordBatch(
   batch: BatchSpec,
   results: Map<string, boolean>,
+  playId?: string,
 ): Promise<void> {
   try {
     const perQuestion: HistoryQuestion[] = batch.groups.map((group) => ({
@@ -60,6 +68,7 @@ export async function recordBatch(
       total: perQuestion.length,
       perQuestion,
       timestamp: Date.now(),
+      playId,
     };
 
     const existing = await loadHistory();
@@ -76,6 +85,9 @@ export async function recordBatch(
 }
 
 function isSamePlay(existing: HistoryEntry, entry: HistoryEntry): boolean {
+  // The id is definitive when both rows carry one: same play, new score.
+  if (entry.playId && existing.playId) return existing.playId === entry.playId;
+
   return (
     existing.batchId === entry.batchId &&
     Math.abs(entry.timestamp - existing.timestamp) < SAME_PLAY_WINDOW_MS &&

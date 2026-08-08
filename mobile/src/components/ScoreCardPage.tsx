@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
-import { colors, radius, spacing, type } from '../theme';
+import { colors, confettiColors, radius, spacing, type } from '../theme';
 import { scoreBand } from '../lib/grade';
 import type { BatchSpec } from '../types/batch';
 
@@ -11,6 +11,8 @@ interface Props {
   /** Longest run of consecutive correct answers (PRD §3). */
   streak: number;
   total: number;
+  /** Questions swiped past and never answered — still open on a scroll back. */
+  skipped: number;
   height: number;
   width: number;
   onMakeItHarder: () => void;
@@ -27,6 +29,7 @@ export function ScoreCardPage({
   score,
   streak,
   total,
+  skipped,
   height,
   width,
   onMakeItHarder,
@@ -44,6 +47,7 @@ export function ScoreCardPage({
         origin={{ x: width / 2, y: -20 }}
         explosionSpeed={420}
         fallSpeed={3200}
+        colors={confettiColors}
         fadeOut
         autoStart
       />
@@ -59,6 +63,14 @@ export function ScoreCardPage({
 
         {/* One correct answer is not a run — say nothing rather than "1 in a row". */}
         {streak > 1 ? <Text style={styles.streak}>🔥 {streak} in a row</Text> : null}
+
+        {/* Skipped questions are still answerable: the feed scrolls both ways,
+            so this is an invitation rather than a scold. */}
+        {skipped > 0 ? (
+          <Text style={styles.skipped}>
+            {skipped} skipped — swipe down ↓ to go back and try {skipped === 1 ? 'it' : 'them'}
+          </Text>
+        ) : null}
 
         <View style={styles.chips}>
           {batch.subjects.map((subject) => (
@@ -119,6 +131,14 @@ const styles = StyleSheet.create({
     marginTop: -spacing.xs,
     marginBottom: spacing.md,
   },
+  skipped: {
+    ...type.body,
+    color: colors.textDim,
+    textAlign: 'center',
+    marginTop: -spacing.xs,
+    marginBottom: spacing.md,
+    paddingHorizontal: spacing.sm,
+  },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -149,7 +169,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.sm,
   },
-  primaryText: { ...type.option, color: colors.text, fontSize: 18 },
+  primaryText: { ...type.option, color: colors.onAccent, fontSize: 18 },
   secondary: {
     borderRadius: radius.pill,
     borderWidth: 1,

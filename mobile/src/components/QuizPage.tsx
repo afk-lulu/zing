@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
+import { memo, useRef, useState } from 'react';
 import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
-import { colors, radius, spacing, type } from '../theme';
+import { colors, confettiColors, radius, spacing, type } from '../theme';
 import { correctAnswerLabel, gradeAnswer } from '../lib/grade';
 import type { Answer, Question } from '../types/batch';
 import { MultiChoiceQuestion } from './widgets/MultiChoiceQuestion';
@@ -35,7 +35,7 @@ interface Props {
  * shake plus the correct answer and the explanation — then the parent unlocks
  * scrolling.
  */
-export function QuizPage({
+function QuizPageImpl({
   question,
   questionNumber,
   questionTotal,
@@ -79,6 +79,7 @@ export function QuizPage({
           origin={{ x: width / 2, y: height * 0.55 }}
           explosionSpeed={320}
           fallSpeed={2400}
+          colors={confettiColors}
           fadeOut
           autoStart
         />
@@ -107,12 +108,23 @@ export function QuizPage({
               <Text style={styles.feedbackBody}>{question.explanation}</Text>
               <Text style={styles.scrollHint}>Swipe up to keep going ↑</Text>
             </View>
-          ) : null}
+          ) : (
+            // The page is no longer a gate, so say so — otherwise a child who
+            // doesn't know an answer sits on a card that looks like a wall.
+            <Text style={styles.scrollHint}>Swipe up to skip ↑</Text>
+          )}
         </ScrollView>
       </Animated.View>
     </View>
   );
 }
+
+/**
+ * Memoised for the same reason as the slide page: while a clip plays, the
+ * player above re-renders ten times a second and every one of those would
+ * otherwise reach the mounted quiz card.
+ */
+export const QuizPage = memo(QuizPageImpl);
 
 function renderWidget(
   question: Question,

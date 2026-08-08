@@ -36,6 +36,6 @@ const styles = StyleSheet.create({
   },
   pressed: { opacity: 0.85, transform: [{ scale: 0.985 }] },
   disabled: { backgroundColor: colors.hairline },
-  label: { ...type.option, color: colors.text, fontSize: 18 },
+  label: { ...type.option, color: colors.onAccent, fontSize: 18 },
   labelDisabled: { color: colors.textDim },
 });

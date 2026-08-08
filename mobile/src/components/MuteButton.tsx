@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { colors, radius, spacing, type } from '../theme';
 
@@ -7,7 +8,7 @@ interface Props {
 }
 
 /** Persistent mute, alongside the progress dots (ARCH §4). */
-export function MuteButton({ muted, onToggle }: Props) {
+function MuteButtonImpl({ muted, onToggle }: Props) {
   return (
     <Pressable
       onPress={onToggle}
@@ -22,9 +23,15 @@ export function MuteButton({ muted, onToggle }: Props) {
   );
 }
 
+/**
+ * Memoised: the player re-renders ten times a second while a clip plays, and
+ * this sits outside the list where nothing else would stop it following.
+ */
+export const MuteButton = memo(MuteButtonImpl);
+
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: 'rgba(11, 11, 20, 0.55)',
+    backgroundColor: 'rgba(4, 7, 10, 0.55)',
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.hairline,

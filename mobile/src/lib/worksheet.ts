@@ -58,7 +58,7 @@ export async function pickPdf(): Promise<WorksheetSource | null> {
     );
   }
 
-  return { kind: 'pdf', data: await file.base64() };
+  return { kind: 'pdf', data: await file.base64(), fingerprint: fingerprintOf(file, 'pdf') };
 }
 
 async function prepareImage(asset: ImagePicker.ImagePickerAsset): Promise<WorksheetSource> {
@@ -88,5 +88,36 @@ async function prepareImage(asset: ImagePicker.ImagePickerAsset): Promise<Worksh
   if (!saved.base64) {
     throw new WorksheetError('Could not read that photo. Try taking it again.');
   }
-  return { kind: 'image', mediaType: 'image/jpeg', data: saved.base64 };
+  return {
+    kind: 'image',
+    mediaType: 'image/jpeg',
+    data: saved.base64,
+    // `saved.uri` is the *rendered* JPEG — the same bytes `data` encodes, not
+    // the camera original. Hashing the original would key the cache on
+    // something we never send, and the resize/compress step would be free to
+    // change the payload underneath a "hit".
+    fingerprint: fingerprintOf(new File(saved.uri), 'image'),
+  };
+}
+
+/**
+ * The batch cache's key material (see `batchCache.ts`).
+ *
+ * `expo-file-system` is already a dependency and its `File` exposes a native
+ * MD5, so there is no new package to add and no multi-megabyte hash loop on the
+ * JS thread — the platform reads the file and returns a digest. MD5's weakness
+ * is collision *forgery*, which needs an attacker; here the input is a photo
+ * the parent just took, so it is only ever being asked to tell two worksheets
+ * apart. The byte length rides along anyway.
+ *
+ * Returns `undefined` when the platform will not hash the file, which the cache
+ * reads as "do not cache" — a normal pipeline run, silently.
+ */
+function fingerprintOf(file: File, kind: 'image' | 'pdf'): string | undefined {
+  try {
+    const md5 = file.md5;
+    return md5 ? `${kind}-${md5}-${file.size}` : undefined;
+  } catch {
+    return undefined;
+  }
 }
