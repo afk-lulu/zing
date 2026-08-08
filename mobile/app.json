@@ -31,7 +31,8 @@
           "cameraPermission": "Zing uses the camera to photograph your worksheet and build a lesson from it."
         }
       ],
-      "expo-document-picker"
+      "expo-document-picker",
+      "expo-asset"
     ],
     "extra": {
       "//": "Set EXPO_PUBLIC_ZING_API_URL in mobile/.env to point the app at your Vercel deployment."

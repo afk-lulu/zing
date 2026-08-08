@@ -1,0 +1,4 @@
+# Shell scripts must check out with LF even on Windows (core.autocrlf=true):
+# a CRLF shebang line makes macOS and Linux reject the file with
+# "bad interpreter: /usr/bin/env bash^M".
+*.sh text eol=lf
