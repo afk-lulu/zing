@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { generateSlideImage } from '@/lib/fal';
-import { synthesizeNarration } from '@/lib/elevenlabs';
+import { pickVoiceId, synthesizeNarration } from '@/lib/elevenlabs';
 import { hostAudio } from '@/lib/blob';
 import { fail, ok, readBody } from '@/lib/http';
 import { resetMockCounters } from '@/lib/mock';
@@ -29,11 +29,16 @@ export async function POST(request: Request) {
     const filled = structuredClone(batch);
     const slides = allSlides(filled);
 
+    // One draw for the whole batch — the fan-out below is parallel, so picking
+    // per slide would hand each slide a different teacher.
+    const voiceId = pickVoiceId();
+    console.log(`[zing:assets] narrator voice ${voiceId}`);
+
     await Promise.all(
       slides.map(async (slide, index) => {
         const [imageUrl, audioUrl] = await Promise.all([
           index < MAX_IMAGES ? tryImage(slide.imagePrompt) : Promise.resolve(undefined),
-          tryAudio(slide.narration, `${filled.batchId}-${index}`),
+          tryAudio(slide.narration, `${filled.batchId}-${index}`, voiceId),
         ]);
         if (imageUrl) slide.imageUrl = imageUrl;
         if (audioUrl) slide.audioUrl = audioUrl;
@@ -55,9 +60,13 @@ async function tryImage(imagePrompt: string): Promise<string | undefined> {
   }
 }
 
-async function tryAudio(narration: string, name: string): Promise<string | undefined> {
+async function tryAudio(
+  narration: string,
+  name: string,
+  voiceId: string,
+): Promise<string | undefined> {
   try {
-    return await hostAudio(await synthesizeNarration(narration), name);
+    return await hostAudio(await synthesizeNarration(narration, voiceId), name);
   } catch (error) {
     console.error('[zing:assets] audio failed —', error instanceof Error ? error.message : error);
     return undefined;
