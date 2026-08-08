@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Zing",
+    "slug": "zing",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zing.app"
+    },
+    "android": {
+      "package": "com.zing.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0B14",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-audio",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Zing uses the camera to photograph your worksheet and build a lesson from it."
+        }
+      ],
+      "expo-document-picker"
+    ],
+    "extra": {
+      "//": "Set EXPO_PUBLIC_ZING_API_URL in mobile/.env to point the app at your Vercel deployment."
+    }
+  }
+}

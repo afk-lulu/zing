@@ -1,0 +1,28 @@
+{
+  "name": "zing-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zing agent-swarm backend — API-only Next.js app deployed to Vercel.",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "smoke": "tsx scripts/smoke.ts",
+    "validate:fallbacks": "tsx scripts/validate-fallbacks.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.116.0",
+    "@vercel/blob": "^2.7.0",
+    "next": "^16.3.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "@types/react": "^19.2.4",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

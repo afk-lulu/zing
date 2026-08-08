@@ -1,0 +1,125 @@
+{
+  "batchId": "fallback-demo-fractions-habitats",
+  "topicSummary": "Fractions + animal habitats",
+  "subjects": ["Math · Fractions", "Science · Habitats"],
+  "difficulty": "on-level",
+  "encouragement": {
+    "high": "You nailed it. You can look at a fraction and just see how big it is now — that is a real skill, go show someone!",
+    "mid": "Nice work. You already know how to split a whole into equal parts, and the ones you missed are the next thing you get to learn.",
+    "low": "You tried every single question, and that is exactly how this starts. Fractions click all at once — let's go again."
+  },
+  "groups": [
+    {
+      "lessons": [
+        {
+          "slides": [
+            {
+              "narration": "Imagine a big pizza cut into eight equal slices. Every slice is exactly the same size, so each one is one eighth of the whole pizza.",
+              "caption": "A pizza cut into 8 equal slices",
+              "imagePrompt": "A whole round pizza cut into eight equal slices on a red checkered tablecloth, seen from directly above, warm and inviting",
+              "kenBurns": "zoom-in"
+            },
+            {
+              "narration": "Now you eat two slices. Six are still sitting there. Six out of eight slices left is the same amount as three quarters of the pizza.",
+              "caption": "2 eaten, 6 still on the tray",
+              "imagePrompt": "The same round pizza from above with two slices missing, leaving a gap, the remaining slices still arranged in a circle on a red checkered tablecloth",
+              "kenBurns": "zoom-out"
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "id": "q1",
+        "type": "slider",
+        "prompt": "You ate 2 of the 8 slices. What percent of the pizza is left?",
+        "config": { "min": 0, "max": 100, "step": 5, "unit": "%" },
+        "answerKey": { "mode": "numeric-tolerance", "value": 75, "tolerance": 5 },
+        "explanation": "Six of the eight slices are left. Six eighths is the same as three quarters, and three quarters is 75%."
+      }
+    },
+    {
+      "lessons": [
+        {
+          "slides": [
+            {
+              "narration": "Here is the tricky part about fractions. A bigger bottom number means the pieces are smaller, because you cut the same thing into more parts.",
+              "caption": "Bigger bottom, smaller pieces",
+              "imagePrompt": "Two identical chocolate bars side by side on a wooden table, the left one broken into three big chunks and the right one broken into eight small chunks",
+              "kenBurns": "pan-left"
+            },
+            {
+              "narration": "So one third is actually bigger than one eighth. Three is a smaller number than eight, but the piece it makes is bigger.",
+              "caption": "One third beats one eighth",
+              "imagePrompt": "A child's hand holding one large chunk of chocolate next to another hand holding one tiny chunk, on a wooden table, friendly and clear",
+              "kenBurns": "pan-right"
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "id": "q2",
+        "type": "single",
+        "prompt": "Which piece of chocolate is the biggest?",
+        "config": { "options": ["One eighth", "One quarter", "One third"] },
+        "answerKey": { "mode": "single-index", "correctIndex": 2 },
+        "explanation": "One third is biggest. Cutting the bar into only three parts leaves each part larger than cutting it into four or eight."
+      }
+    },
+    {
+      "lessons": [
+        {
+          "slides": [
+            {
+              "narration": "A habitat is just the place where an animal already has everything it needs. Food, water, shelter, and space to move around.",
+              "caption": "A habitat is a home that provides",
+              "imagePrompt": "A sunlit forest clearing with a stream, a hollow log, berry bushes and a deer standing among the trees, storybook illustration",
+              "kenBurns": "zoom-in"
+            },
+            {
+              "narration": "That is why a polar bear would not last in a desert, and a camel would not last on the ice. Each one is built for its own home.",
+              "caption": "Built for their own home",
+              "imagePrompt": "A split scene: a polar bear on blue ice under falling snow on the left, and a camel on golden sand dunes under a bright sun on the right",
+              "kenBurns": "zoom-out"
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "id": "q3",
+        "type": "multi",
+        "prompt": "Which of these does an animal need from its habitat? Pick all of them.",
+        "config": { "options": ["Food", "A name", "Shelter", "Water"] },
+        "answerKey": { "mode": "index-set", "correctIndices": [0, 2, 3] },
+        "explanation": "Food, shelter and water are what a habitat has to provide. A name is something people give an animal, not something it needs to survive."
+      }
+    },
+    {
+      "lessons": [
+        {
+          "slides": [
+            {
+              "narration": "Inside every habitat, energy moves along in one direction. The sun feeds the plants, the plants feed the animals that eat plants.",
+              "caption": "Energy travels in one direction",
+              "imagePrompt": "A bright meadow with the sun above, tall green grass, and a rabbit nibbling at the grass, cheerful storybook illustration",
+              "kenBurns": "pan-left"
+            },
+            {
+              "narration": "And then a hunting animal eats that one. Follow the chain backwards from any animal and you always end up back at the sun.",
+              "caption": "Follow it back to the sun",
+              "imagePrompt": "A fox crouched in tall meadow grass watching a rabbit in the distance, warm afternoon light, storybook illustration",
+              "kenBurns": "pan-right"
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "id": "q4",
+        "type": "order",
+        "prompt": "Tap these in order to build the food chain, starting with where the energy comes from.",
+        "config": { "items": ["Rabbit", "Sun", "Fox", "Grass"] },
+        "answerKey": { "mode": "exact-order", "correctOrder": [1, 3, 0, 2] },
+        "explanation": "The sun feeds the grass, the grass feeds the rabbit, and the rabbit feeds the fox. Every food chain starts at the sun."
+      }
+    }
+  ]
+}
