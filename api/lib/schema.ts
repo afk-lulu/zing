@@ -7,7 +7,14 @@ import { z } from 'zod';
  *
  * Hard budgets from the Planner (ARCH §2.S3) are encoded here so a malformed
  * plan fails validation server-side rather than blowing up the demo:
- *   ≤12 slides · ≤12 images · 3–5 questions · ≥3 distinct question types.
+ *   ≤12 slides · ≤12 images · 3–5 questions.
+ *
+ * The fourth budget — ≥3 distinct question types — is deliberately *not* here.
+ * ARCH §2.S3 and §7 only ever promise "malformed questions dropped; <3 valid →
+ * error", and a batch of four sound questions that happen to use two widgets is
+ * a duller batch, not a broken one. Failing it here would 502 the whole compose
+ * stage and drop the child to the fallback over a variety preference, so the
+ * check lives in /api/compose as a logged warning instead (`countDistinctTypes`).
  */
 
 export const DIFFICULTIES = ['easy', 'on-level', 'challenge'] as const;
@@ -56,14 +63,26 @@ export type Extraction = z.infer<typeof Extraction>;
  * S2 — Researcher swarm output
  * ------------------------------------------------------------------ */
 
+/**
+ * A researcher that hands back more than it was asked for is being generous,
+ * not malformed — take the first few and move on. Rejecting the topic outright
+ * (as a `.max()` would) throws away the whole topic's research over a bounds
+ * check, which is the opposite of the degrade-don't-fail rule for S2.
+ */
+const researchList = (max: number) =>
+  z
+    .array(z.string())
+    .default([])
+    .transform((items) => items.slice(0, max));
+
 export const TopicResearch = z.object({
   topic: z.string().min(1),
   /** Grade-band-appropriate concepts the lesson should land. */
-  concepts: z.array(z.string()).max(6).default([]),
+  concepts: researchList(6),
   /** Feeds Challenge-difficulty distractors. */
-  misconceptions: z.array(z.string()).max(6).default([]),
+  misconceptions: researchList(6),
   /** Feeds lesson hooks. */
-  funFacts: z.array(z.string()).max(6).default([]),
+  funFacts: researchList(6),
 });
 export type TopicResearch = z.infer<typeof TopicResearch>;
 
@@ -154,64 +173,111 @@ const QuestionBase = {
   explanation: z.string().min(1),
 };
 
+const SliderQuestion = z.object({
+  ...QuestionBase,
+  type: z.literal('slider'),
+  config: SliderConfig,
+  answerKey: SliderAnswerKey,
+});
+
+const SingleQuestion = z.object({
+  ...QuestionBase,
+  type: z.literal('single'),
+  config: OptionsConfig,
+  answerKey: SingleAnswerKey,
+});
+
+const MultiQuestion = z.object({
+  ...QuestionBase,
+  type: z.literal('multi'),
+  config: OptionsConfig,
+  answerKey: MultiAnswerKey,
+});
+
+const OrderQuestion = z.object({
+  ...QuestionBase,
+  type: z.literal('order'),
+  config: OrderConfig,
+  answerKey: OrderAnswerKey,
+});
+
+/**
+ * Cross-field checks the writers can still get wrong even with a valid shape.
+ * These catch *structural* nonsense (an answer off its own scale, an index past
+ * the end of the options). They cannot catch a wrong answer — nothing on this
+ * server can — which is why the Quiz Writer prompt makes the writer show its
+ * arithmetic, and why `order` keys are generated rather than written.
+ */
+function checkQuestion(
+  q:
+    | z.infer<typeof SliderQuestion>
+    | z.infer<typeof SingleQuestion>
+    | z.infer<typeof MultiQuestion>
+    | { type: 'order'; config: z.infer<typeof OrderConfig>; answerKey?: { correctOrder?: number[] } },
+  ctx: z.RefinementCtx,
+): void {
+  if (q.type === 'slider' && q.config.max <= q.config.min) {
+    ctx.addIssue({ code: 'custom', message: 'slider config.max must exceed config.min' });
+  }
+  if (q.type === 'slider' && (q.answerKey.value < q.config.min || q.answerKey.value > q.config.max)) {
+    ctx.addIssue({ code: 'custom', message: 'slider answer falls outside [min, max]' });
+  }
+  if (q.type === 'single' && q.answerKey.correctIndex >= q.config.options.length) {
+    ctx.addIssue({ code: 'custom', message: 'correctIndex out of range' });
+  }
+  if (q.type === 'multi') {
+    const n = q.config.options.length;
+    if (q.answerKey.correctIndices.some((i) => i >= n)) {
+      ctx.addIssue({ code: 'custom', message: 'correctIndices out of range' });
+    }
+    if (new Set(q.answerKey.correctIndices).size !== q.answerKey.correctIndices.length) {
+      ctx.addIssue({ code: 'custom', message: 'correctIndices contains duplicates' });
+    }
+  }
+  if (q.type === 'order') {
+    const n = q.config.items.length;
+    const order = q.answerKey?.correctOrder;
+    if (!order) return; // Writer-side shape: the key has not been generated yet.
+    const isPermutation =
+      order.length === n && new Set(order).size === n && order.every((i) => i >= 0 && i < n);
+    if (!isPermutation) {
+      ctx.addIssue({ code: 'custom', message: 'correctOrder must be a permutation of items' });
+    }
+  }
+}
+
 export const Question = z
+  .discriminatedUnion('type', [SliderQuestion, SingleQuestion, MultiQuestion, OrderQuestion])
+  .superRefine(checkQuestion);
+export type Question = z.infer<typeof Question>;
+
+/**
+ * What a Quiz Writer is actually asked for. Identical to `Question` except for
+ * `order`: the writer lists `items` **already in the correct sequence** and
+ * writes no `correctOrder` at all. /api/compose then shuffles the items and
+ * derives the key from that shuffle (ARCH §2.S3 assembly).
+ *
+ * This exists because writing `correctOrder` by hand asks the model to do two
+ * separate things right — order the items, *and* express that ordering as a
+ * permutation of indexes into a list it just scrambled. The second step is a
+ * pure bookkeeping task with an inviting off-by-convention failure (emitting
+ * the inverse permutation), and it is the one a computer should be doing. The
+ * Batch Spec the app sees is unchanged.
+ */
+export const WrittenQuestion = z
   .discriminatedUnion('type', [
-    z.object({
-      ...QuestionBase,
-      type: z.literal('slider'),
-      config: SliderConfig,
-      answerKey: SliderAnswerKey,
-    }),
-    z.object({
-      ...QuestionBase,
-      type: z.literal('single'),
-      config: OptionsConfig,
-      answerKey: SingleAnswerKey,
-    }),
-    z.object({
-      ...QuestionBase,
-      type: z.literal('multi'),
-      config: OptionsConfig,
-      answerKey: MultiAnswerKey,
-    }),
+    SliderQuestion,
+    SingleQuestion,
+    MultiQuestion,
     z.object({
       ...QuestionBase,
       type: z.literal('order'),
+      /** In correct order as written; /api/compose scrambles them. */
       config: OrderConfig,
-      answerKey: OrderAnswerKey,
     }),
   ])
-  // Cross-field checks the writers can still get wrong even with a valid shape.
-  .superRefine((q, ctx) => {
-    if (q.type === 'slider' && q.config.max <= q.config.min) {
-      ctx.addIssue({ code: 'custom', message: 'slider config.max must exceed config.min' });
-    }
-    if (q.type === 'slider' && (q.answerKey.value < q.config.min || q.answerKey.value > q.config.max)) {
-      ctx.addIssue({ code: 'custom', message: 'slider answer falls outside [min, max]' });
-    }
-    if (q.type === 'single' && q.answerKey.correctIndex >= q.config.options.length) {
-      ctx.addIssue({ code: 'custom', message: 'correctIndex out of range' });
-    }
-    if (q.type === 'multi') {
-      const n = q.config.options.length;
-      if (q.answerKey.correctIndices.some((i) => i >= n)) {
-        ctx.addIssue({ code: 'custom', message: 'correctIndices out of range' });
-      }
-      if (new Set(q.answerKey.correctIndices).size !== q.answerKey.correctIndices.length) {
-        ctx.addIssue({ code: 'custom', message: 'correctIndices contains duplicates' });
-      }
-    }
-    if (q.type === 'order') {
-      const n = q.config.items.length;
-      const order = q.answerKey.correctOrder;
-      const isPermutation =
-        order.length === n && new Set(order).size === n && order.every((i) => i >= 0 && i < n);
-      if (!isPermutation) {
-        ctx.addIssue({ code: 'custom', message: 'correctOrder must be a permutation of items' });
-      }
-    }
-  });
-export type Question = z.infer<typeof Question>;
+  .superRefine(checkQuestion);
+export type WrittenQuestion = z.infer<typeof WrittenQuestion>;
 
 export const Encouragement = z.object({
   high: z.string().min(1),
@@ -260,19 +326,17 @@ export const BatchSpec = z
     if (slideCount > MAX_SLIDES) {
       ctx.addIssue({ code: 'custom', message: `batch has ${slideCount} slides, budget is ${MAX_SLIDES}` });
     }
-    const distinctTypes = new Set(batch.groups.map((g) => g.quiz.type)).size;
-    if (distinctTypes < MIN_DISTINCT_QUESTION_TYPES) {
-      ctx.addIssue({
-        code: 'custom',
-        message: `batch uses ${distinctTypes} question types, need ≥${MIN_DISTINCT_QUESTION_TYPES}`,
-      });
-    }
     const ids = batch.groups.map((g) => g.quiz.id);
     if (new Set(ids).size !== ids.length) {
       ctx.addIssue({ code: 'custom', message: 'question ids must be unique' });
     }
   });
 export type BatchSpec = z.infer<typeof BatchSpec>;
+
+/** How many of the four widgets the batch actually uses (ARCH §2.S3 wants ≥3). */
+export function countDistinctTypes(batch: Pick<BatchSpec, 'groups'>): number {
+  return new Set(batch.groups.map((group) => group.quiz.type)).size;
+}
 
 export function countSlides(batch: Pick<BatchSpec, 'groups'>): number {
   return batch.groups.reduce(

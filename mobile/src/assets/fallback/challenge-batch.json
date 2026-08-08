@@ -1,12 +1,16 @@
 {
-  "batchId": "fallback-demo-fractions-habitats-challenge",
-  "topicSummary": "Fractions + animal habitats",
-  "subjects": ["Math · Fractions", "Science · Habitats"],
+  "batchId": "1b251bd6-3d4b-43b1-a850-605755d6b9c7",
+  "topicSummary": "Fractions + animal habitats + water cycle",
+  "subjects": [
+    "Math · Fractions",
+    "Science · Habitats",
+    "Science · Water Cycle"
+  ],
   "difficulty": "challenge",
   "encouragement": {
-    "high": "That was the hard version and you took it apart. You are not memorising fractions any more — you are reasoning with them.",
-    "mid": "You went straight at the hard version and got real ones right. Multi-step questions are supposed to make you stop and think.",
-    "low": "You chose the harder set, which most people do not do. Every one you missed showed you exactly where to look next."
+    "high": "You put in real work today and it shows — fractions, animal habitats, and the water cycle are all sitting stronger in your brain right now. Keep bringing that effort and you'll keep building on what you know.",
+    "mid": "You worked through some tricky ideas today — fractions, where animals live, and how water travels through our world — and parts of that are already sticking. Notice what felt shaky and give those spots a little extra practice next time.",
+    "low": "You showed up and wrestled with fractions, animal habitats, and the water cycle today, and that means you now know more than you did before you started. The parts that tripped you up are exactly the ones worth coming back to — that's how learning works."
   },
   "groups": [
     {
@@ -14,15 +18,15 @@
         {
           "slides": [
             {
-              "narration": "Here is a trap worth knowing. Two thirds of a small pizza is not the same amount of food as two thirds of a huge pizza, even though the fraction is identical.",
-              "caption": "The same fraction, different wholes",
-              "imagePrompt": "A tiny personal pizza next to an enormous family pizza on a wooden counter, each with the same two-thirds portion remaining, seen from above",
+              "narration": "When two fractions share the same numerator, the one with the bigger denominator is actually the smaller fraction. Imagine sharing a chocolate bar equally among ten friends versus among three friends — each of ten people gets a much thinner slice than each of three people.",
+              "caption": "Bigger denominator, smaller piece",
+              "imagePrompt": "Two identical chocolate bars on a wooden table, one broken into ten thin equal pieces and one broken into three thick equal pieces, with cartoon children's hands reaching toward each bar, warm cozy kitchen background",
               "kenBurns": "zoom-in"
             },
             {
-              "narration": "A fraction always answers the question, how much of what? Change the what, and the same fraction means a completely different amount.",
-              "caption": "How much — of what?",
-              "imagePrompt": "A child looking thoughtfully between two differently sized pizzas on a counter, warm kitchen light, storybook illustration",
+              "narration": "Now you can use that idea to rename a fraction without changing its size — by cutting each piece into smaller equal parts. If you split every third of a bar into two equal parts, you double the number of pieces, and two thirds becomes an equivalent fraction in sixths.",
+              "caption": "Splitting thirds into sixths",
+              "imagePrompt": "A single rectangular chocolate bar on a rustic wooden surface, first divided into three equal chunks with two chunks shaded deep brown, then a dotted cut line slicing each chunk cleanly in half to show six equal pieces, warm golden lighting",
               "kenBurns": "zoom-out"
             }
           ]
@@ -30,11 +34,20 @@
       ],
       "quiz": {
         "id": "q1",
+        "prompt": "A bar is split into thirds and 2 out of 3 parts are shaded. Convert the shaded amount into sixths, then place that fraction on the slider.",
+        "explanation": "2/3 equals 4/6 — multiply both numerator and denominator by 2. Then 4/6 means 4 out of 6 equal parts, which is about 67% of the whole bar, so the slider lands near 65–70%.",
         "type": "slider",
-        "prompt": "A tray holds 12 brownies. You eat one quarter, then your friend eats a third of what is left. How many brownies remain?",
-        "config": { "min": 0, "max": 12, "step": 1, "unit": "" },
-        "answerKey": { "mode": "numeric-tolerance", "value": 6, "tolerance": 0 },
-        "explanation": "A quarter of 12 is 3, leaving 9. A third of 9 is 3, leaving 6. The second fraction applies to what was left, not to the original 12."
+        "config": {
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%"
+        },
+        "answerKey": {
+          "mode": "numeric-tolerance",
+          "value": 65,
+          "tolerance": 5
+        }
       }
     },
     {
@@ -42,15 +55,15 @@
         {
           "slides": [
             {
-              "narration": "Most people compare fractions by looking at the bottom numbers first. That works only when the top numbers match.",
-              "caption": "Only compare like with like",
-              "imagePrompt": "Four identical chocolate bars in a row on a wooden table, each broken into a different number of pieces, from two large chunks to eight small ones",
+              "narration": "When you add fractions with the same denominator, the denominator is telling you what size the pieces are — and that never changes. You only add the numerators, because you are simply counting how many of those same-sized pieces you have altogether.",
+              "caption": "Same denominator? Add the tops only.",
+              "imagePrompt": "A large rectangular chocolate bar broken into eight equal segments on a wooden table, with three segments on the left side highlighted in dark brown and five segments on the right side highlighted in a slightly lighter brown, all eight segments clearly the same size",
               "kenBurns": "pan-left"
             },
             {
-              "narration": "When the tops differ too, give both fractions the same bottom number first. Then the comparison is honest, because you are comparing pieces of the same size.",
-              "caption": "Match the bottoms, then compare",
-              "imagePrompt": "Two chocolate bars side by side, both broken into twelve equal small squares, with different amounts shaded darker on each",
+              "narration": "Think of it like stacking same-sized building blocks — three blocks plus five blocks gives you eight blocks, and the block size stays exactly the same. So when you see three eighths plus five eighths, add three and five to get your answer, and keep eighths as your denominator.",
+              "caption": "Count the pieces, keep the size.",
+              "imagePrompt": "Two neat towers of colorful cubic blocks on a bright playroom floor, one tower with three stacked blocks and another tower with five stacked blocks, all blocks identical in size, the two towers sitting side by side with a small gap between them",
               "kenBurns": "pan-right"
             }
           ]
@@ -58,11 +71,21 @@
       ],
       "quiz": {
         "id": "q2",
+        "prompt": "What is 3/8 + 5/8 in its simplest form?",
+        "explanation": "3 + 5 = 8, and the denominator stays 8, giving 8/8. Since 8/8 means 8 out of 8 equal parts, that equals exactly 1.",
         "type": "single",
-        "prompt": "Which of these is the largest fraction?",
-        "config": { "options": ["Three quarters", "Five eighths", "Two thirds", "Seven twelfths"] },
-        "answerKey": { "mode": "single-index", "correctIndex": 0 },
-        "explanation": "Written over twelfths: three quarters is 9/12, two thirds is 8/12, five eighths is about 7.5/12, and seven twelfths is 7/12. Three quarters wins."
+        "config": {
+          "options": [
+            "8/16",
+            "7/8",
+            "1/2",
+            "1"
+          ]
+        },
+        "answerKey": {
+          "mode": "single-index",
+          "correctIndex": 3
+        }
       }
     },
     {
@@ -70,15 +93,15 @@
         {
           "slides": [
             {
-              "narration": "An animal does not just live in a habitat. It is shaped by it, right down to the colour of its coat and the shape of its feet.",
-              "caption": "The habitat shapes the animal",
-              "imagePrompt": "A close-up of a snowshoe hare with oversized furry white feet standing on deep snow beside pine trees, storybook illustration",
+              "narration": "Did you know a polar bear's fur is actually transparent, not white? Each hollow strand scatters light so the bear looks white against the snow, keeping it hidden while it hunts. Every single feature of that bear — its fur, its thick fat, its wide paws — exists because the Arctic habitat shaped it over thousands of years.",
+              "caption": "Your habitat builds your body.",
+              "imagePrompt": "A massive polar bear walking across a vast frozen Arctic landscape, its thick fur glowing white under a pale blue sky, surrounded by cracked sea ice and dark frigid water between the floes",
               "kenBurns": "zoom-in"
             },
             {
-              "narration": "So when a habitat changes faster than the animals in it can, the animals that were best suited yesterday can become the ones in the most trouble.",
-              "caption": "When the home changes first",
-              "imagePrompt": "A white hare standing on patchy brown ground with only scattered snow left, surrounded by bare trees in early spring",
+              "narration": "Now meet the cactus wren, a small bird that builds its nest deep inside a thorny cactus on purpose — those sharp spines are a wall of protection that keeps foxes and snakes away. A habitat is not just a neighborhood; it is a full life-support system that delivers food, fresh water, shelter, and enough space for an animal to survive and raise young. Take away any one of those four things, and the animal is in serious danger, because its body was built for that exact place and nowhere else.",
+              "caption": "Four needs, one perfect place.",
+              "imagePrompt": "A small speckled brown bird tucked snugly inside a nest woven between the thick spines of a tall saguaro cactus under a bright desert sun, dry sandy ground and distant rocky hills stretching behind it",
               "kenBurns": "zoom-out"
             }
           ]
@@ -86,18 +109,24 @@
       ],
       "quiz": {
         "id": "q3",
+        "prompt": "Which pairings correctly match an animal to a specific habitat need its body is built to get there?",
+        "explanation": "The beaver and polar bear pairings each name a specific habitat feature and show how the animal's body is built to get a need — shelter or space — from it. The dolphin option confuses a biome with a habitat, and the cactus wren option replaces a body-built need with personal preference, which animals do not have.",
         "type": "multi",
-        "prompt": "A snowy forest warms up and the snow melts weeks earlier each year. Which of these become problems for a white winter hare? Pick all of them.",
         "config": {
           "options": [
-            "Its white coat now stands out against brown ground",
-            "It is easier for foxes to spot",
-            "It forgets how to find food",
-            "Its coat colour change is timed to daylight, not to snow"
+            "A beaver gets shelter in a freshwater pond by building a lodge with an underwater entrance that predators cannot reach",
+            "A bottlenose dolphin's habitat is the ocean biome, which supplies all its needs the way a freshwater pond supplies a frog's",
+            "A polar bear gets the space it needs on Arctic sea ice because its body is built to travel vast distances to find prey under frozen water",
+            "A cactus wren nests inside a saguaro cactus because desert air suits the bird's personal preference for dry, warm places"
           ]
         },
-        "answerKey": { "mode": "index-set", "correctIndices": [0, 1, 3] },
-        "explanation": "Camouflage, predators and the daylight-based timing are all real problems. Animals do not forget how to find food — that is not how adaptation works."
+        "answerKey": {
+          "mode": "index-set",
+          "correctIndices": [
+            0,
+            2
+          ]
+        }
       }
     },
     {
@@ -105,15 +134,15 @@
         {
           "slides": [
             {
-              "narration": "Food chains look like simple lines, but pull one link out and the effect travels in both directions, not just upward.",
-              "caption": "Pull one link, the whole chain moves",
-              "imagePrompt": "A meadow scene with the sun above, tall grass, a rabbit and a fox arranged as if in a line, storybook illustration",
+              "narration": "The water cycle is a never-ending journey that water takes over and over again. It all begins with evaporation, when the sun heats liquid water in oceans, lakes, and rivers until it turns into invisible water vapor and rises high into the sky.",
+              "caption": "Evaporation kicks off the water cycle.",
+              "imagePrompt": "A bright sun shining over a vast shimmering lake, with wispy curling steam rising gently upward from the water surface into a clear blue sky, lush green banks surrounding the lake",
               "kenBurns": "pan-left"
             },
             {
-              "narration": "Remove the foxes and the rabbits multiply. More rabbits eat more grass. Less grass means, eventually, fewer rabbits. The chain corrects itself the hard way.",
-              "caption": "The chain corrects itself",
-              "imagePrompt": "A meadow crowded with many rabbits on sparse, patchy, half-eaten grass under a hazy sun, storybook illustration",
+              "narration": "As water vapor climbs higher, the air gets colder and the vapor cools into tiny droplets, forming clouds — that is condensation. Those droplets grow heavy, fall as rain or snow in a process called precipitation, and then collect in rivers and oceans, where the whole cycle starts all over again.",
+              "caption": "Vapor cools, falls, collects, repeats.",
+              "imagePrompt": "A dramatic landscape showing dark fluffy clouds forming in a cool sky on the left, heavy rain pouring down in the middle, and streams of water flowing into a wide river on the right, all under a moody atmospheric sky",
               "kenBurns": "pan-right"
             }
           ]
@@ -121,18 +150,26 @@
       ],
       "quiz": {
         "id": "q4",
+        "prompt": "A puddle sits under the hot sun on a summer afternoon. Arrange the four steps that follow, from what happens first to what happens last before the cycle repeats.",
+        "explanation": "Heat turns the puddle's water into vapor — that's evaporation. The vapor rises and cools into clouds — condensation. Water then falls as rain or snow — precipitation. Finally, water gathers in rivers, lakes, or puddles — collection — and the cycle starts again.",
         "type": "order",
-        "prompt": "Every fox leaves the meadow. Tap what happens, in the order it happens.",
         "config": {
           "items": [
-            "The grass is eaten faster than it grows",
-            "The rabbit population grows",
-            "Rabbit numbers fall again",
-            "The foxes are gone"
+            "Collection",
+            "Evaporation",
+            "Precipitation",
+            "Condensation"
           ]
         },
-        "answerKey": { "mode": "exact-order", "correctOrder": [3, 1, 0, 2] },
-        "explanation": "Foxes leave, so more rabbits survive. More rabbits strip the grass faster than it regrows, and with less food the rabbit numbers drop back down."
+        "answerKey": {
+          "mode": "exact-order",
+          "correctOrder": [
+            1,
+            3,
+            2,
+            0
+          ]
+        }
       }
     }
   ]

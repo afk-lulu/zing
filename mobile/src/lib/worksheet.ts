@@ -14,8 +14,13 @@ import type { WorksheetSource } from './api';
  */
 const MAX_IMAGE_EDGE = 1568;
 
-/** Anthropic accepts ≤100pp / 32MB natively, but a big PDF still has to upload. */
-const MAX_PDF_BYTES = 12 * 1024 * 1024;
+/**
+ * Anthropic accepts ≤100pp / 32MB natively, but the PDF has to reach the
+ * Vercel function first (PRD §2) and base64 inflates it by a third. The same
+ * ~4.5MB request-body ceiling that governs photos governs this: 3MB of PDF
+ * encodes to ~4MB, which fits; anything larger is rejected before it is read.
+ */
+const MAX_PDF_BYTES = 3 * 1024 * 1024;
 
 export class WorksheetError extends Error {}
 
@@ -26,7 +31,7 @@ export async function captureFromCamera(): Promise<WorksheetSource | null> {
   }
 
   const result = await ImagePicker.launchCameraAsync({ quality: 0.8, allowsEditing: false });
-  return result.canceled ? null : prepareImage(result.assets[0].uri);
+  return result.canceled ? null : prepareImage(result.assets[0]);
 }
 
 export async function pickFromLibrary(): Promise<WorksheetSource | null> {
@@ -35,7 +40,7 @@ export async function pickFromLibrary(): Promise<WorksheetSource | null> {
     quality: 0.8,
     allowsEditing: false,
   });
-  return result.canceled ? null : prepareImage(result.assets[0].uri);
+  return result.canceled ? null : prepareImage(result.assets[0]);
 }
 
 export async function pickPdf(): Promise<WorksheetSource | null> {
@@ -48,15 +53,30 @@ export async function pickPdf(): Promise<WorksheetSource | null> {
   const asset = result.assets[0];
   const file = new File(asset.uri);
   if (file.size > MAX_PDF_BYTES) {
-    throw new WorksheetError('That PDF is too big to send. Try a photo of one page instead.');
+    throw new WorksheetError(
+      'That PDF is too big to send. Take a photo of the page you want instead — one page is all Zing needs.',
+    );
   }
 
   return { kind: 'pdf', data: await file.base64() };
 }
 
-async function prepareImage(uri: string): Promise<WorksheetSource> {
-  const context = ImageManipulator.manipulate(uri);
-  context.resize({ width: MAX_IMAGE_EDGE });
+async function prepareImage(asset: ImagePicker.ImagePickerAsset): Promise<WorksheetSource> {
+  const context = ImageManipulator.manipulate(asset.uri);
+
+  // Cap the **long** edge, not the width: a parent photographs a page in
+  // portrait, and capping 3024×4032 by width still leaves 1568×2090 for Claude
+  // to downsample server-side — the same picture, ~1.8× the upload.
+  const longEdge = Math.max(asset.width, asset.height);
+  if (!longEdge) {
+    // The picker reports 0 when the system withheld the dimensions; cap the
+    // width so an unknown photo is still bounded.
+    context.resize({ width: MAX_IMAGE_EDGE });
+  } else if (longEdge > MAX_IMAGE_EDGE) {
+    context.resize(
+      asset.height > asset.width ? { height: MAX_IMAGE_EDGE } : { width: MAX_IMAGE_EDGE },
+    );
+  }
 
   const rendered = await context.renderAsync();
   const saved = await rendered.saveAsync({

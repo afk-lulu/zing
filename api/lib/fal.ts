@@ -1,4 +1,4 @@
-import { StageError, requireEnv } from './http';
+import { StageError, isRetryableStatus, requireEnv } from './http';
 import { isMock, mockImageUrl } from './mock';
 
 /**
@@ -43,7 +43,12 @@ export async function generateSlideImage(imagePrompt: string, signal?: AbortSign
   });
 
   if (!response.ok) {
-    throw new StageError(`fal returned ${response.status}: ${await safeText(response)}`, 502, 'assets');
+    throw new StageError(
+      `fal returned ${response.status}: ${await safeText(response)}`,
+      502,
+      'assets',
+      isRetryableStatus(response.status),
+    );
   }
 
   const body = (await response.json()) as FalImageResponse;

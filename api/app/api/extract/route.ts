@@ -42,8 +42,11 @@ export async function POST(request: Request) {
       system: EXTRACTOR_SYSTEM,
       user: [source, textBlock(extractorUser(body.difficulty))],
       schema: Extraction,
-      effort: 'medium',
-      maxTokens: 2048,
+      // Vision at `medium` cost ~12s against an 8s budget, and this stage is
+      // identifying topics, not transcribing (ARCH §2.S1) — a job `low` does
+      // as well in half the time.
+      effort: 'low',
+      maxTokens: 1024,
     });
 
     return ok({ extraction });

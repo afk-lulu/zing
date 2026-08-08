@@ -8,6 +8,8 @@ import type { BatchSpec } from '../types/batch';
 interface Props {
   batch: BatchSpec;
   score: number;
+  /** Longest run of consecutive correct answers (PRD §3). */
+  streak: number;
   total: number;
   height: number;
   width: number;
@@ -23,6 +25,7 @@ interface Props {
 export function ScoreCardPage({
   batch,
   score,
+  streak,
   total,
   height,
   width,
@@ -53,6 +56,9 @@ export function ScoreCardPage({
           <Text style={styles.score}>{score}</Text>
           <Text style={styles.scoreTotal}>/{total}</Text>
         </View>
+
+        {/* One correct answer is not a run — say nothing rather than "1 in a row". */}
+        {streak > 1 ? <Text style={styles.streak}>🔥 {streak} in a row</Text> : null}
 
         <View style={styles.chips}>
           {batch.subjects.map((subject) => (
@@ -105,6 +111,14 @@ const styles = StyleSheet.create({
   },
   score: { ...type.score, color: colors.text },
   scoreTotal: { ...type.prompt, color: colors.textDim, marginBottom: spacing.md },
+  streak: {
+    ...type.body,
+    fontWeight: '800',
+    color: colors.accent,
+    textAlign: 'center',
+    marginTop: -spacing.xs,
+    marginBottom: spacing.md,
+  },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',

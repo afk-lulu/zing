@@ -6,10 +6,20 @@ export class StageError extends Error {
     message: string,
     readonly status = 500,
     readonly stage?: string,
+    /**
+     * Set when the failure was the provider shedding load (429, 5xx) rather
+     * than anything wrong with the request — the caller may sensibly try again.
+     */
+    readonly retryable = false,
   ) {
     super(message);
     this.name = 'StageError';
   }
+}
+
+/** 429 and 5xx are "come back later"; 4xx means the request itself is wrong. */
+export function isRetryableStatus(status: number): boolean {
+  return status === 429 || status >= 500;
 }
 
 export function ok<T>(data: T): NextResponse {

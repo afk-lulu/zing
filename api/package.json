@@ -9,6 +9,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "smoke": "tsx scripts/smoke.ts",
+    "make:chime": "tsx scripts/make-chime.ts",
+    "bundle:fallbacks": "tsx scripts/bundle-fallbacks.ts",
     "validate:fallbacks": "tsx scripts/validate-fallbacks.ts"
   },
   "dependencies": {

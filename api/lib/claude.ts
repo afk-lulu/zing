@@ -18,6 +18,13 @@ export const MODEL = 'claude-sonnet-4-6';
  */
 export type Effort = 'low' | 'medium' | 'high';
 
+/**
+ * How many times a `pause_turn` may be resumed. Each resume is a whole extra
+ * round-trip that re-sends the transcript so far, so this is the single
+ * biggest lever on the Researcher swarm's wall clock (ARCH §2 gives S2 15s).
+ */
+const MAX_RESUMES = 1;
+
 let client: Anthropic | null = null;
 
 function anthropic(): Anthropic {
@@ -80,6 +87,7 @@ async function callClaude(options: Omit<AskOptions<unknown>, 'schema'>): Promise
     : [];
 
   const messages: Anthropic.MessageParam[] = [{ role: 'user', content: user }];
+  const started = Date.now();
 
   let response = await anthropic().messages.create({
     model: MODEL,
@@ -91,8 +99,11 @@ async function callClaude(options: Omit<AskOptions<unknown>, 'schema'>): Promise
   });
 
   // A server-side tool loop can hand back `pause_turn`; re-send to resume it.
-  // Bounded so a search that never settles can't eat the 90s cap.
-  for (let resumes = 0; response.stop_reason === 'pause_turn' && resumes < 3; resumes++) {
+  // One resume only: the ARCH §2 budget has no room for a search loop that
+  // needs several rounds, and the researcher prompt is written so a paused
+  // turn still has enough to answer from.
+  let resumes = 0;
+  for (; response.stop_reason === 'pause_turn' && resumes < MAX_RESUMES; resumes++) {
     messages.push({ role: 'assistant', content: response.content });
     response = await anthropic().messages.create({
       model: MODEL,
@@ -103,6 +114,8 @@ async function callClaude(options: Omit<AskOptions<unknown>, 'schema'>): Promise
       messages,
     });
   }
+
+  logCall(agent, started, response, resumes);
 
   if (response.stop_reason === 'refusal') {
     throw new StageError(`${agent} declined the request`, 502, agent);
@@ -118,6 +131,23 @@ async function callClaude(options: Omit<AskOptions<unknown>, 'schema'>): Promise
     throw new StageError(`${agent} returned no text (stop_reason=${response.stop_reason})`, 502, agent);
   }
   return text;
+}
+
+/**
+ * One line per agent call. The whole latency story of a run is in these lines:
+ * which agent, how long, whether the server-side search loop had to be resumed,
+ * and how many searches it actually spent (ARCH §2 latency budget).
+ */
+function logCall(agent: string, started: number, response: Anthropic.Message, resumes: number): void {
+  const searches = response.usage?.server_tool_use?.web_search_requests ?? 0;
+  const parts = [
+    `${Date.now() - started}ms`,
+    `stop=${response.stop_reason}`,
+    `out=${response.usage.output_tokens}t`,
+  ];
+  if (searches) parts.push(`searches=${searches}`);
+  if (resumes) parts.push(`resumes=${resumes}`);
+  console.log(`[zing:timing] ${agent} ${parts.join(' ')}`);
 }
 
 /** The mock reads the prompt for its assignment, same as a real writer does. */

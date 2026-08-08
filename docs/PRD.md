@@ -31,20 +31,20 @@ One homework input → one **batch**, experienced as a full-screen vertical feed
 ```
 Batch
  ├─ Group ×3–5
- │    ├─ LessonContent ×1–3   — 2–3 slides each (fal.ai Flux 720×1280 portrait
+ │    ├─ LessonContent ×1     — 1–4 slides (fal.ai Flux 720×1280 portrait
  │    │                          illustration + native caption + ElevenLabs clip)
  │    └─ QuizContent  ×1      — one question, overlay card
- └─ ScoreCard                  — score, subject chips, confetti, encouragement
+ └─ ScoreCard                  — score, streak, subject chips, confetti, encouragement
 ```
 
-- **Rhythm:** scroll 1–3 lesson contents → hit 1 quiz content → repeat. 3–5 quiz questions per batch; the batch ends when all are answered.
-- **POC budget (Planner-enforced):** ≤12 slides, ≤12 images, ~2 min total narration. Demo default: 3 groups ≈ 4 questions ≈ a 2–3 minute experience.
+- **Rhythm:** scroll a group's lesson slides → hit its 1 quiz content → repeat. 3–5 quiz questions per batch; the batch ends when all are answered.
+- **POC budget (Planner-enforced):** ≤12 slides, ≤12 images, ~2 min total narration. The slide budget wins over the per-group count: a batch that overshoots is trimmed from the back, down to a single slide in a group if that is what fits. Demo default: 4 groups = 4 questions ≈ a 2–3 minute experience.
 - **Images:** style-locked ("flat, colorful children's textbook illustration, no text"), 720×1280 — mobile-sharp, cheap, fast; never contain text/labels/diagrams (all words are native overlays).
 - **Question schema** (Quiz Writer picks the fit): `slider` (0–100, tolerance-graded) · `single` (one tap) · `multi` (select + confirm) · `order` (tap-to-order with numbered badges). ≥3 types per batch.
 - Quiz pages pause narration and lock scrolling until answered; instant feedback (confetti burst / shake + one-line explanation).
 
 ### ScoreCard
-Score (n/N), streak, subject-matter chips ("Fractions · Habitats"), full-screen confetti, and a **positive-reinforcement message** written by the Encourager agent at generation time in three score-band variants (crushing-it / solid / keep-going) — growth-mindset voice, kid-addressed, instant display with no extra API call. Buttons: **Make it harder** · Done.
+Score (n/N), streak, subject-matter chips ("Math · Fractions", "Science · Habitats"), full-screen confetti, and a **positive-reinforcement message** written by the Encourager agent at generation time in three score-band variants (crushing-it / solid / keep-going) — growth-mindset voice, kid-addressed, instant display with no extra API call. Buttons: **Make it harder** · Done.
 
 ## 4. Agent Swarm (the pitch's backbone)
 
@@ -81,7 +81,7 @@ Score (n/N), streak, subject-matter chips ("Fractions · Habitats"), full-screen
 **F3 Batch player** — vertical pager; slide pages auto-advance on audio end; quiz overlay cards with 4 native widgets; scroll lock during questions; prefetched images; mute + progress dots.
 **F4 ScoreCard** — confetti cannon, score, subject chips, banded encouragement, Make it harder (cached Challenge batch in demo).
 **F5 Recording** — AsyncStorage `{batchId, topicSummary, difficulty, score, total, perQuestion, timestamp}` + history screen.
-**F6 Status narration** — Generating screen narrates real stages: "Reading the worksheet… Researchers are digging… Lesson writers drafting… Illustrating… Recording narration…"
+**F6 Status narration** — Generating screen narrates the four real stages, one line each: "Reading the worksheet… Researchers are digging… Lesson writers drafting… Illustrating and recording narration…"
 
 ## 8. Non-goals
 No auth, no server DB, no standalone binary, no offline, no COPPA review, no i18n, no social features despite the format.

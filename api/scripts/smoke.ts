@@ -69,8 +69,19 @@ async function main() {
   console.log(`\nzing pipeline — ${basename(inputPath)} @ ${difficulty}\n`);
   const wallClockStart = Date.now();
 
-  const { extraction } = await callStage<{ extraction: unknown }>('extract', { ...source, difficulty });
-  const { research } = await callStage<{ research: unknown }>('research', { extraction, difficulty });
+  const { extraction } = await callStage<{ extraction: ExtractionLike }>('extract', {
+    ...source,
+    difficulty,
+  });
+  const { research } = await callStage<{ research: ResearchLike }>('research', {
+    extraction,
+    difficulty,
+  });
+  // S2 deadlines slow researchers (see /api/research). A topic that misses it is
+  // omitted, so this is where a thinner-than-planned batch first shows up.
+  console.log(
+    `  ${'researched'.padEnd(9)} ${String(research.topics.length).padStart(6)}/${extraction.topics.length} topics`,
+  );
   const { batch } = await callStage<{ batch: BatchLike }>('compose', { extraction, research, difficulty });
   const { batch: withAssets } = await callStage<{ batch: BatchLike }>('assets', { batch });
 
@@ -89,6 +100,14 @@ async function main() {
   const outPath = `batch-${withAssets.difficulty}.json`;
   await writeFile(outPath, JSON.stringify(withAssets, null, 2));
   console.log(`\n  written to ${outPath}\n`);
+}
+
+interface ExtractionLike {
+  topics: { topic: string }[];
+}
+
+interface ResearchLike {
+  topics: { topic: string }[];
 }
 
 interface BatchLike {

@@ -22,8 +22,11 @@ Vercel serverless (Next.js API routes; ANTHROPIC / FAL / ELEVENLABS keys)
  ├─ POST /api/research    Researcher swarm: ≤3 parallel calls, web_search on
  ├─ POST /api/compose     Planner → parallel Lesson & Quiz Writers → Encourager
  ├─ POST /api/assets      fan-out: fal image per slide ‖ ElevenLabs clip per slide
- └─ GET  /api/fallback    cached demo batch
+ ├─ GET  /api/audio/<id>  serves a clip when there is no Blob store (§2.S4)
+ └─ GET  /api/fallback    cached demo batch — dev/diagnostic only
 ```
+
+`/api/fallback` is off the runtime path: the app's insurance is the batch **bundled in the app** (§5), which needs no API to play. Note the media is only *files* in a standalone build: under Expo Go, `Image.resolveAssetSource` resolves bundled assets to Metro URLs, so a genuinely dead network degrades the fallback to captions-on-tint, silent, auto-advancing on the read-length timer. The route exists so the cached spec can be curled while developing.
 
 The app is the Orchestrator's hands: it calls stages sequentially, passes outputs forward, narrates progress, enforces the 90s cap, and triggers fallback. Each function stays short (serverless-friendly), and progress narration is real, not simulated.
 
@@ -34,12 +37,12 @@ The app is the Orchestrator's hands: it calls stages sequentially, passes output
 **S2 `/api/research` — Researcher swarm** (≤3 parallel calls, web_search): per topic — grade-band concepts, **misconceptions** (→ Challenge distractors), fun facts (→ lesson hooks).
 
 **S3 `/api/compose` — the swarm's core** (one route, three internal waves):
-1. **Curriculum Planner** (1 call): batch outline — 3–5 groups, lesson/quiz rhythm per group, which topic and question type each group gets, difficulty rubric applied (Easy: single-step recall, generous framing · On-level: grade-typical application · Challenge: multi-step + misconception distractors). **Hard budgets:** ≤12 slides, ≤12 images, ≥3 distinct question types, 3–5 questions total.
-2. **Lesson Writers ‖ Quiz Writers** (`Promise.all`, one call per group): writers get the plan slot + research; lesson writers return slides `{narration 2–3 warm sentences, caption, imagePrompt}`; quiz writers return one question `{type, prompt, config, answerKey, explanation}`. Image-prompt hard rule: scene/character/metaphor **only — no text, labels, numbers, diagrams** (models render glyph garbage; every word is a native RN overlay).
+1. **Curriculum Planner** (1 call): batch outline — 3–5 groups, lesson/quiz rhythm per group, which topic and question type each group gets, difficulty rubric applied (Easy: single-step recall, generous framing · On-level: grade-typical application · Challenge: multi-step + misconception distractors). **Hard budgets:** ≤12 slides, ≤12 images, 3–5 questions total (Zod-checked), plus ≥3 distinct question types and ~2 min of narration across the batch — the last two are Planner instructions that degrade with a logged warning rather than failing the batch, because a duller batch beats no batch.
+2. **Lesson Writers ‖ Quiz Writers** (`Promise.all`, one call per group): writers get the plan slot + research; lesson writers return slides `{narration 2–3 warm sentences, caption, imagePrompt}`; quiz writers return one question `{type, prompt, config, answerKey, explanation}` — except `order`, where the writer returns its `items` **already in the correct sequence and no `answerKey` at all**, and the route scrambles them and derives `correctOrder` from its own scramble. A model asked to shuffle a list in its head and then describe where everything went gets it wrong often enough to matter; this makes the key a fact about what the server did. Image-prompt hard rule: scene/character/metaphor **only — no text, labels, numbers, diagrams** (models render glyph garbage; every word is a native RN overlay).
 3. **Encourager** (1 small call, in the same `Promise.all`): three ScoreCard messages keyed to score bands (`high ≥80% · mid ≥50% · low`), growth-mindset, kid-addressed.
 Route Zod-validates the assembled **Batch Spec**; malformed questions dropped; <3 valid questions → error → client falls back.
 
-**S4 `/api/assets`** (full fan-out `Promise.all`): fal Flux **schnell** `image_size:{width:720,height:1280}` with style-lock prefix ("flat, colorful children's textbook illustration, friendly, no text") ~2–4s each ‖ ElevenLabs `eleven_flash_v2_5`, one fixed teacher voice, mp3 per slide. ElevenLabs returns bytes → pushed to Vercel Blob (POC fallback: base64 data-URIs inline) so the app receives plain URLs. Returns the Batch Spec with `imageUrl`/`audioUrl` filled.
+**S4 `/api/assets`** (fan-out `Promise.all`, bounded to 4 in flight per provider with one jittered retry on 429/5xx — the first real run lost 3 of 24 assets to provider rate limits, and throttling made the stage *faster*): fal Flux **schnell** `image_size:{width:720,height:1280}` with style-lock prefix ("flat, colorful children's textbook illustration, friendly, no text") ~2–4s each ‖ ElevenLabs `eleven_flash_v2_5`, one fixed teacher voice, mp3 per slide. ElevenLabs returns bytes → hosted so the app receives plain URLs, three tiers: Vercel Blob when a token is set (the only one that survives a cold start) · else an in-process store served from `GET /api/audio/<id>` at the request's own host, which is enough for `next dev` · else base64 data-URIs inline, the POC last resort iOS may refuse to play. Returns the Batch Spec with `imageUrl`/`audioUrl` filled.
 
 **Latency budget (batch starts <45s):** S1 ~8s · S2 ~15s · S3 ~12s (waves 2–3 parallel) · S4 ~10–15s (fully parallel). `maxDuration = 120` on research/compose/assets.
 
@@ -55,15 +58,17 @@ Route Zod-validates the assembled **Batch Spec**; malformed questions dropped; <
   "groups": [
     { "lessons": [
         { "slides": [
-            { "imageUrl": "...", "audioUrl": "...",
+            { "imageUrl": "...", "audioUrl": "...",   // filled by S4
+              "narration": "Eight equal slices make one whole pizza — eight eighths.",
               "caption": "A pizza cut into 8 equal slices",
+              "imagePrompt": "A cheerful pizza on a board, cut into eight even wedges",
               "kenBurns": "zoom-in" } ] }
       ],
       "quiz": {
         "id": "q1",
         "type": "slider",                     // slider | single | multi | order
         "prompt": "You ate 2 of 8 slices. What % is left?",
-        "config":  { "min": 0, "max": 100, "unit": "%" },
+        "config":  { "min": 0, "max": 100, "step": 5, "unit": "%" },
         "answerKey": { "mode": "numeric-tolerance", "value": 75, "tolerance": 5 },
         "explanation": "6 of 8 slices = 6/8 = 75%!"
       } }
@@ -71,16 +76,18 @@ Route Zod-validates the assembled **Batch Spec**; malformed questions dropped; <
 }
 ```
 
+`narration` and `imagePrompt` are the writers' raw output and stay in the spec after S4 has consumed them: `narration` is what the player times a clip-less slide by, and `imagePrompt` is what makes a failed image re-runnable. `slider` `config.step` defaults to 1.
+
 Per-type `config`/`answerKey`: `single` → `{options[]}`/`{correctIndex}` · `multi` → `{options[]}`/`{correctIndices[]}` (set) · `order` → `{items[]}`/`{correctOrder[]}` (exact). The app flattens `groups` into a page list: `[...slides, quizPage] × groups, scoreCardPage`. Grading is a ~40-line pure function client-side.
 
 ## 4. Batch Player (RN)
 
 - Vertical `FlatList`, `pagingEnabled`, full-screen pages; progress dots + mute persistent
-- **Lesson slide page:** prefetched `Image` (`Image.prefetch` on all URLs the moment S4 returns) under a slow scale/translate loop (Ken Burns) + caption; `expo-audio` (`playsInSilentMode: true`) plays the clip; clip end → auto-advance; batch starts from a user tap (never autoplay — iPhone audio policy)
+- **Lesson slide page:** prefetched `Image` (`Image.prefetch` on all URLs the moment S4 returns) under a slow scale/translate loop (Ken Burns) + caption; `expo-audio` (`playsInSilentMode: true`) plays the clip; clip end → auto-advance, and a slide whose clip is missing falls back to a read-length timer off its `narration` so the feed still moves; batch starts from a user tap (never autoplay — iPhone audio policy)
 - **Quiz page:** audio pauses, `scrollEnabled=false`; bottom-anchored card renders the widget:
   `slider` — `@react-native-community/slider` (in Expo Go) + big live readout · `single`/`multi` — option rows (+ confirm for multi) · `order` — **tap-to-order**: tap in sequence, numbered badges, re-tap to undo (no drag libs)
 - Feedback: correct → mini confetti + chime; wrong → shake, highlight correct, explanation; then unlock scroll
-- **ScoreCard page:** `react-native-confetti-cannon` full burst, score n/N, subject chips, encouragement picked by score band, Make it harder + Done
+- **ScoreCard page:** `react-native-confetti-cannon` full burst, score n/N, streak — the **longest** run of correct answers in ask order, not the run it ended on, and hidden below 2 — subject chips, encouragement picked by score band, Make it harder + Done
 - State machine per page: `playing → question → feedback → playing → … → scorecard`
 
 ## 5. Difficulty, Recording, Insurance

@@ -1,4 +1,4 @@
-import { StageError, requireEnv } from './http';
+import { StageError, isRetryableStatus, requireEnv } from './http';
 import { isMock, mockAudioBytes } from './mock';
 
 /**
@@ -70,7 +70,12 @@ export async function synthesizeNarration(
     } catch {
       // keep the placeholder
     }
-    throw new StageError(`elevenlabs returned ${response.status}: ${detail}`, 502, 'assets');
+    throw new StageError(
+      `elevenlabs returned ${response.status}: ${detail}`,
+      502,
+      'assets',
+      isRetryableStatus(response.status),
+    );
   }
 
   return Buffer.from(await response.arrayBuffer());

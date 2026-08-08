@@ -2,3 +2,16 @@
 # a CRLF shebang line makes macOS and Linux reject the file with
 # "bad interpreter: /usr/bin/env bash^M".
 *.sh text eol=lf
+
+# Bundled media (the chime, and the ARCH §5 fallback clips and images) must
+# never be line-ending translated — a single rewritten byte is a corrupt file.
+*.wav binary
+*.mp3 binary
+*.png binary
+*.jpg binary
+
+# api/fixtures/worksheet.pdf is a hand-written, all-ASCII PDF: it holds no NUL
+# byte, so git's auto-detection calls it *text* and autocrlf=true would rewrite
+# every LF on checkout — which shifts the byte offsets its xref table records
+# and yields "Broken xref table". Force it binary.
+*.pdf binary
